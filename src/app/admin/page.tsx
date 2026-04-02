@@ -60,7 +60,7 @@ function LoginScreen({ onLogin }: { onLogin: (pw: string) => boolean }) {
       <div style={{ background: 'white', borderRadius: 16, padding: '2.5rem', width: 340, boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>🌯</div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: '#C0392B', letterSpacing: 2 }}>PABLO DÖNER</div>
+          <div style={{ fontSize: 26, fontWeight: 700, color: '#C0392B', letterSpacing: 2 }}>SMILE DÖNER</div>
           <div style={{ fontSize: 13, color: '#888', marginTop: 4 }}>Admin-Bereich</div>
         </div>
         <label style={{ fontSize: 13, color: '#555', display: 'block', marginBottom: 6, fontWeight: 600 }}>Passwort</label>
@@ -133,7 +133,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
       {/* Sidebar */}
       <div style={{ width: 200, background: '#C0392B', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(255,255,255,0.15)' }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: 'white', letterSpacing: 1 }}>PABLO DÖNER</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'white', letterSpacing: 1 }}>SMILE DÖNER</div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>Admin Panel</div>
         </div>
         {navItems.map(item => (
@@ -253,7 +253,7 @@ function printOrder(order: Order) {
     .footer{text-align:center;font-size:11px;color:#666;margin-top:16px;line-height:1.6}
     .options{font-size:11px;color:#888;padding-left:16px}
   </style></head><body>
-  <h1>PABLO DÖNER</h1>
+  <h1>SMILE DÖNER</h1>
   <div class="sub">Franziskusstr. 1, 44795 Bochum<br>pablodoner7@gmail.com</div>
   <hr>
   <div class="row"><span><strong>${order.order_number}</strong></span><span>${date} ${time} Uhr</span></div>

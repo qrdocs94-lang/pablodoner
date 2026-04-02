@@ -1,4 +1,4 @@
-# 🌯 Pablo Döner — Bestell-Terminal
+# 🌯 Smile Döner — Bestell-Terminal
 
 Vollständiges 24/7 Bestellsystem mit Stripe-Zahlung, Supabase-Datenbank und Küchen-Display.
 
@@ -182,7 +182,7 @@ Gefälschte Requests werden mit HTTP 400 abgelehnt.
 
 ## 📞 Kontakt
 
-Pablo Döner Bochum  
+Smile Döner Bochum  
 📍 Franziskusstr. 1, 44795 Bochum  
 ✉️ pablodoner7@gmail.com  
 🕐 Di–Do: 10:00–22:00 | Fr–So: 12:00–00:00

@@ -44,7 +44,7 @@ export default function KitchenPage() {
       {/* Header */}
       <div className="bg-[#0f0f14] border-b border-white/10 px-6 py-4 flex items-center justify-between">
         <div>
-          <div className="font-black text-[#F39C12] text-xl tracking-wider">PABLO DÖNER — KÜCHEN DISPLAY</div>
+          <div className="font-black text-[#F39C12] text-xl tracking-wider">SMILE DÖNER — KÜCHEN DISPLAY</div>
           <div className="text-white/40 text-xs font-bold tracking-widest uppercase">Franziskusstr. 1, 44795 Bochum</div>
         </div>
         <div className="text-right">

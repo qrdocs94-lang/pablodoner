@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 import './globals.css'
 
 export const metadata = {
-  title: 'Pablo Döner Bochum — Bestellen',
+  title: 'Smile Döner Bochum — Bestellen',
   description: 'Frische Döner, Dürüm, Lahmacun & mehr. Jetzt bestellen!',
 }
 

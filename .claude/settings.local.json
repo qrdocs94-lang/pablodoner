@@ -7,7 +7,12 @@
       "Bash(npx supabase:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(grep -rn \"pablo-doener\\\\|pablodoner\\\\|pablo doener\\\\|pablodoner7\\\\|Pablo Döner\\\\|Pablo Doner\\\\|PABLO DÖNER\" /c/pablo/pablo-terminal/src /c/pablo/pablo-terminal/supabase /c/pablo/pablo-terminal/*.md /c/pablo/pablo-terminal/*.json)",
+      "Bash(sed -i 's/PABLO DÖNER/SMILE DÖNER/g; s/Pablo Döner/Smile Döner/g; s/Pablo Doner/Smile Doner/g' /c/pablo/pablo-terminal/src/app/admin/page.tsx /c/pablo/pablo-terminal/src/app/kitchen/page.tsx /c/pablo/pablo-terminal/src/app/layout.tsx /c/pablo/pablo-terminal/src/app/page.tsx)",
+      "Bash(sed -i 's/PABLO DÖNER/SMILE DÖNER/g; s/Pablo Döner/Smile Döner/g' /c/pablo/pablo-terminal/supabase/migrations/001_schema.sql /c/pablo/pablo-terminal/supabase/migrations/002_admin_policies.sql)",
+      "Bash(sed -i 's/PABLO DÖNER/SMILE DÖNER/g; s/Pablo Döner/Smile Döner/g; s/Pablo Doner/Smile Doner/g' /c/pablo/pablo-terminal/ANLEITUNG.md /c/pablo/pablo-terminal/README.md)",
+      "Bash(grep -rn \"Pablo Döner\\\\|Pablo Doner\\\\|PABLO DÖNER\" /c/pablo/pablo-terminal/src /c/pablo/pablo-terminal/supabase /c/pablo/pablo-terminal/*.md /c/pablo/pablo-terminal/*.json)"
     ]
   }
 }

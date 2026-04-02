@@ -1,4 +1,4 @@
-# 🌯 Pablo Döner Terminal — Schritt-für-Schritt Anleitung
+# 🌯 Smile Döner Terminal — Schritt-für-Schritt Anleitung
 # (Kein Programmierwissen nötig!)
 
 ## ⚡ Schnellstart: Nur 4 Schritte

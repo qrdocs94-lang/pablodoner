@@ -118,7 +118,7 @@ export default function TerminalPage() {
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'white', border: '2px solid #F39C12', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, overflow: 'hidden' }}>
-              <img src="/logo.png" alt="Pablo Döner" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.innerText = '🌯'; }} />
+              <img src="/logo.png" alt="Smile Döner" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.innerText = '🌯'; }} />
             </div>
             <div>
               <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, color: '#F39C12', lineHeight: 1 }}>Pablo</div>

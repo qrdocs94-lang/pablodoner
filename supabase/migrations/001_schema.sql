@@ -1,5 +1,5 @@
 -- ============================================================
--- PABLO DÖNER — Supabase Database Schema
+-- SMILE DÖNER — Supabase Database Schema
 -- ============================================================
 
 -- Enable UUID extension
@@ -161,7 +161,7 @@ CREATE POLICY "service_all_orders" ON orders
   FOR ALL USING (auth.role() = 'service_role');
 
 -- ============================================================
--- SEED DATA — Pablo Döner Menu
+-- SEED DATA — Smile Döner Menu
 -- ============================================================
 INSERT INTO categories (name, slug, icon, sort_order) VALUES
   ('Döner & Dürüm',   'doener',    '🌯', 1),

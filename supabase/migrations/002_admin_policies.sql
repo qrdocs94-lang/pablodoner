@@ -1,5 +1,5 @@
 -- ============================================================
--- PABLO DÖNER — Admin & Kitchen RLS Policies
+-- SMILE DÖNER — Admin & Kitchen RLS Policies
 -- Run this after 001_schema.sql
 -- ============================================================
 
