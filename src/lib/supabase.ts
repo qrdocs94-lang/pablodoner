@@ -1,10 +1,23 @@
 // src/lib/supabase.ts
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { Category, Product, Order } from "@/types";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-export const supabase = createClient(supabaseUrl, supabaseKey);
+let _supabase: SupabaseClient | null = null;
+
+export function getSupabase() {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    _supabase = createClient(url, key);
+  }
+  return _supabase;
+}
+
+export const supabase = new Proxy({} as SupabaseClient, {
+  get(_, prop) {
+    return (getSupabase() as any)[prop];
+  }
+});
 
 // ── API helpers ──────────────────────────────────────────────
 
@@ -80,4 +93,5 @@ export async function updateOrderStatus(
   const { error } = await supabase.from("orders").update(update).eq("id", orderId);
   if (error) throw error;
 }
+
 
