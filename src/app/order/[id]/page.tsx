@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 interface Order {
   id: string;
   status: string;
-  total: number;
+  total_cents: number;
   items: Array<{ name: string; quantity: number; price: number }>;
   created_at: string;
   order_type: string;
