@@ -241,3 +241,4 @@ function getProductEmoji(name: string): string {
   return '🌯';
 }
  
+
