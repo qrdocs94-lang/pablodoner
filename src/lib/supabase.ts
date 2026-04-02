@@ -94,5 +94,54 @@ export async function updateOrderStatus(
   if (error) throw error;
 }
 
+// ── Admin: fetch all orders ────────────────────────────────────
+export async function fetchAllOrdersAdmin(): Promise<Order[]> {
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
 
+// ── Admin: fetch all products (including inactive) ─────────────
+export async function fetchAllProductsAdmin(): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("sort_order");
+  if (error) throw error;
+  return data ?? [];
+}
 
+// ── Admin: create product ──────────────────────────────────────
+export async function createProduct(product: {
+  category_id: string;
+  name: string;
+  description: string;
+  price_cents: number;
+  sort_order?: number;
+}): Promise<Product> {
+  const { data, error } = await supabase
+    .from("products")
+    .insert({ ...product, is_active: true, options_schema: [] })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+// ── Admin: update product ──────────────────────────────────────
+export async function updateProduct(
+  id: string,
+  updates: Partial<Pick<Product, "name" | "description" | "price_cents" | "is_active" | "category_id">>
+): Promise<void> {
+  const { error } = await supabase.from("products").update(updates).eq("id", id);
+  if (error) throw error;
+}
+
+// ── Admin: delete product ──────────────────────────────────────
+export async function deleteProduct(id: string): Promise<void> {
+  const { error } = await supabase.from("products").delete().eq("id", id);
+  if (error) throw error;
+}

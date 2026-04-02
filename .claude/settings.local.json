@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /c/pablo/pablo-terminal/src/app/admin)",
+      "Bash(mkdir -p /c/pablo/pablo-terminal/supabase/migrations)",
+      "Bash(npx tsc:*)",
+      "Bash(npx supabase:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ]
+  }
+}

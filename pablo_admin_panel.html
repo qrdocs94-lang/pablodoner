@@ -1,0 +1,448 @@
+
+<style>
+:root{--red:#C0392B;--red-dark:#96281B;--gold:#F39C12;--sidebar-w:200px}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+body{background:var(--color-background-tertiary)}
+#login-screen{min-height:600px;display:flex;align-items:center;justify-content:center;background:var(--color-background-tertiary)}
+.login-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:2.5rem;width:340px}
+.login-logo{text-align:center;margin-bottom:1.5rem}
+.login-logo .brand{font-size:28px;font-weight:700;color:var(--red);letter-spacing:2px}
+.login-logo .sub{font-size:13px;color:var(--color-text-secondary);margin-top:2px}
+.login-card label{font-size:13px;color:var(--color-text-secondary);display:block;margin-bottom:4px}
+.login-card input{width:100%;margin-bottom:1rem}
+.login-btn{width:100%;padding:10px;background:var(--red);color:white;border:none;border-radius:var(--border-radius-md);font-size:15px;font-weight:600;cursor:pointer}
+.login-btn:hover{background:var(--red-dark)}
+.login-error{color:#E24B4A;font-size:13px;text-align:center;margin-top:8px;min-height:20px}
+
+#app{display:none;min-height:600px}
+.app-layout{display:flex;min-height:600px}
+.sidebar{width:var(--sidebar-w);background:var(--red);flex-shrink:0;display:flex;flex-direction:column}
+.sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.15)}
+.sidebar-logo .name{font-size:18px;font-weight:700;color:white;letter-spacing:1px}
+.sidebar-logo .sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;color:rgba(255,255,255,0.75);font-size:14px;font-weight:500;border-left:3px solid transparent;transition:all 0.15s}
+.nav-item:hover{background:rgba(0,0,0,0.15);color:white}
+.nav-item.active{background:rgba(0,0,0,0.2);color:white;border-left-color:var(--gold)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-bottom{margin-top:auto;padding:16px}
+.logout-btn{width:100%;padding:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer}
+.logout-btn:hover{background:rgba(255,255,255,0.2)}
+
+.main-area{flex:1;overflow:auto;background:var(--color-background-tertiary)}
+.page-header{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+.page-title{font-size:18px;font-weight:600;color:var(--color-text-primary)}
+.page-sub{font-size:13px;color:var(--color-text-secondary);margin-top:2px}
+.content{padding:20px 24px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px}
+.stat-label{font-size:12px;color:var(--color-text-secondary);font-weight:500}
+.stat-value{font-size:26px;font-weight:600;color:var(--color-text-primary);margin-top:4px}
+.stat-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;margin-top:6px;font-weight:500}
+.badge-green{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-amber{background:var(--color-background-warning);color:var(--color-text-warning)}
+.badge-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+.badge-info{background:var(--color-background-info);color:var(--color-text-info)}
+
+.section-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:16px}
+.section-card-header{padding:14px 16px;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between}
+.section-card-title{font-size:14px;font-weight:600;color:var(--color-text-primary)}
+
+.orders-filter{display:flex;gap:8px;padding:12px 16px;border-bottom:0.5px solid var(--color-border-tertiary);flex-wrap:wrap}
+.filter-btn{padding:5px 14px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:none;cursor:pointer;font-size:12px;font-weight:500;color:var(--color-text-secondary);transition:all 0.15s}
+.filter-btn.active{background:var(--red);color:white;border-color:var(--red)}
+
+.order-row{padding:14px 16px;border-bottom:0.5px solid var(--color-border-tertiary);display:grid;grid-template-columns:90px 1fr 120px 100px 140px;gap:12px;align-items:center}
+.order-row:last-child{border-bottom:none}
+.order-row:hover{background:var(--color-background-secondary)}
+.order-num{font-size:13px;font-weight:700;color:var(--color-text-primary)}
+.order-meta{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.order-customer{font-size:13px;font-weight:500}
+.order-contact{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.order-total{font-size:14px;font-weight:700;color:var(--color-text-primary)}
+.order-type{font-size:12px;color:var(--color-text-secondary)}
+.status-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600}
+.status-pending{background:#FAEEDA;color:#633806}
+.status-preparing{background:#E6F1FB;color:#0C447C}
+.status-ready{background:#EAF3DE;color:#27500A}
+.status-delivered{background:#F1EFE8;color:#444441}
+.order-actions{display:flex;gap:6px}
+.act-btn{padding:5px 10px;border-radius:6px;border:0.5px solid var(--color-border-secondary);background:none;cursor:pointer;font-size:11px;font-weight:600;color:var(--color-text-secondary);transition:all 0.15s}
+.act-btn:hover{border-color:var(--red);color:var(--red)}
+.act-btn.primary{background:var(--red);color:white;border-color:var(--red)}
+.act-btn.primary:hover{background:var(--red-dark)}
+.act-btn.print{background:#1A1A1A;color:white;border-color:#1A1A1A}
+
+.kitchen-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.kitchen-col-title{font-size:13px;font-weight:700;padding:10px 14px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;margin-bottom:1px}
+.kitchen-col-pending .kitchen-col-title{background:#FAEEDA;color:#633806}
+.kitchen-col-preparing .kitchen-col-title{background:#E6F1FB;color:#0C447C}
+.kitchen-col-ready .kitchen-col-title{background:#EAF3DE;color:#27500A}
+.kitchen-ticket{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:0 0 var(--border-radius-md) var(--border-radius-md);padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:all 0.15s}
+.kitchen-ticket:hover{border-color:var(--color-border-secondary)}
+.ticket-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ticket-num{font-size:13px;font-weight:700}
+.ticket-time{font-size:11px;color:var(--color-text-secondary)}
+.ticket-item{font-size:12px;padding:3px 0;color:var(--color-text-primary);display:flex;gap:6px}
+.ticket-qty{font-weight:700;min-width:18px}
+.ticket-customer{font-size:11px;color:var(--color-text-secondary);margin-top:8px;padding-top:8px;border-top:0.5px solid var(--color-border-tertiary)}
+.ticket-btn{width:100%;margin-top:10px;padding:7px;border-radius:var(--border-radius-md);border:none;cursor:pointer;font-size:12px;font-weight:600}
+.ticket-btn-accept{background:var(--red);color:white}
+.ticket-btn-ready{background:#639922;color:white}
+
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:16px}
+.product-item{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;display:flex;align-items:center;gap:12px}
+.product-item-emoji{font-size:28px;width:44px;height:44px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center}
+.product-item-info{flex:1;min-width:0}
+.product-item-name{font-size:14px;font-weight:600;color:var(--color-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.product-item-cat{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.product-item-price{font-size:15px;font-weight:700;color:var(--red);margin-top:4px}
+.product-item-actions{display:flex;gap:4px;flex-shrink:0}
+.pi-btn{width:28px;height:28px;border-radius:6px;border:0.5px solid var(--color-border-secondary);background:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.pi-btn:hover{background:var(--color-background-secondary)}
+
+.add-product-form{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:20px;margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-group label{font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px;font-weight:500}
+.form-group input,.form-group select{width:100%}
+.form-actions{display:flex;gap:8px;justify-content:flex-end}
+
+.empty-state{text-align:center;padding:48px 20px;color:var(--color-text-secondary)}
+.print-modal-bg{min-height:400px;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;border-radius:var(--border-radius-lg);padding:20px}
+.print-card{background:white;border-radius:var(--border-radius-lg);padding:24px;width:320px;font-family:'Courier New',monospace}
+.print-header{text-align:center;border-bottom:2px dashed #ccc;padding-bottom:12px;margin-bottom:12px}
+.print-title{font-size:20px;font-weight:900;letter-spacing:3px}
+.print-line{display:flex;justify-content:space-between;font-size:13px;padding:2px 0}
+.print-divider{border-top:1px dashed #ccc;margin:10px 0}
+.print-total{display:flex;justify-content:space-between;font-size:15px;font-weight:900;padding:4px 0}
+</style>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="brand">PABLO DÖNER</div>
+      <div class="sub">Admin-Bereich</div>
+    </div>
+    <label>Passwort</label>
+    <input type="password" id="pw-input" placeholder="Admin-Passwort" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Anmelden</button>
+    <div class="login-error" id="login-err"></div>
+    <div style="font-size:12px;color:var(--color-text-secondary);text-align:center;margin-top:16px">Demo-Passwort: <strong>pablo2024</strong></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="app-layout">
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="name">PABLO DÖNER</div>
+        <div class="sub">Admin Panel</div>
+      </div>
+      <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</div>
+      <div class="nav-item" onclick="showPage('kueche',this)"><span class="nav-icon">👨‍🍳</span> Küche Live</div>
+      <div class="nav-item" onclick="showPage('bestellungen',this)"><span class="nav-icon">📋</span> Bestellungen</div>
+      <div class="nav-item" onclick="showPage('produkte',this)"><span class="nav-icon">🍽️</span> Produkte</div>
+      <div class="sidebar-bottom">
+        <button class="logout-btn" onclick="doLogout()">Abmelden</button>
+      </div>
+    </div>
+    <div class="main-area" id="main-area"></div>
+  </div>
+</div>
+
+<div id="print-overlay" style="display:none;min-height:400px;background:rgba(0,0,0,0.55);position:absolute;inset:0;z-index:999;display:none;align-items:center;justify-content:center;border-radius:var(--border-radius-lg)">
+  <div class="print-card" id="print-card-content">
+  </div>
+</div>
+
+<script>
+const PASS = 'pablo2024';
+let currentPage = 'dashboard';
+
+const sampleOrders = [
+  {id:'ORD-001',num:'A1F3',status:'pending',type:'pickup',customer:'Ahmed Yilmaz',phone:'0234 555 1234',email:'ahmed@email.de',items:[{n:'Drehspieß Sandwich',q:2,p:800},{n:'Coca-Cola',q:2,p:250}],total:2100,time:'13:42',date:'02.04.2026'},
+  {id:'ORD-002',num:'B2K7',status:'preparing',type:'delivery',customer:'Maria Schmidt',phone:'0234 555 5678',email:'maria@email.de',items:[{n:'Dürüm',q:1,p:900},{n:'Falafel Sandwich',q:1,p:700},{n:'Pommes',q:1,p:450}],total:2050,time:'13:38',date:'02.04.2026',address:'Hauptstr. 12, 44795 Bochum'},
+  {id:'ORD-003',num:'C9R2',status:'ready',type:'pickup',customer:'Kevin Müller',phone:'0234 555 9012',email:'kevin@email.de',items:[{n:'Lahmacun mit Salat & Fleisch',q:2,p:1050}],total:2100,time:'13:25',date:'02.04.2026'},
+  {id:'ORD-004',num:'D4T8',status:'pending',type:'delivery',customer:'Fatima Al-Hassan',phone:'0234 555 3456',email:'fatima@email.de',items:[{n:'Big Dürüm',q:1,p:1000},{n:'Ayran',q:2,p:200}],total:1400,time:'13:45',date:'02.04.2026',address:'Ringstr. 5, 44795 Bochum'},
+  {id:'ORD-005',num:'E6P1',status:'delivered',type:'pickup',customer:'Thomas Bauer',phone:'0234 555 7890',email:'t.bauer@email.de',items:[{n:'Currywurst mit Pommes',q:1,p:750},{n:'Cola Zero',q:1,p:250}],total:1000,time:'12:58',date:'02.04.2026'},
+];
+
+const menuItems = [
+  {id:'ds',cat:'Döner & Dürüm',name:'Drehspieß Sandwich',price:800,active:true},
+  {id:'dsb',cat:'Döner & Dürüm',name:'Drehspieß Sandwich Big',price:900,active:true},
+  {id:'du',cat:'Döner & Dürüm',name:'Dürüm',price:900,active:true},
+  {id:'bdu',cat:'Döner & Dürüm',name:'Big Dürüm',price:1000,active:true},
+  {id:'dbox',cat:'Döner & Dürüm',name:'Drehspieß Box',price:800,active:true},
+  {id:'dteller',cat:'Döner & Dürüm',name:'Drehspieß Teller',price:1400,active:true},
+  {id:'fpk',cat:'Döner & Dürüm',name:'Fleisch Portion Klein',price:800,active:true},
+  {id:'fpg',cat:'Döner & Dürüm',name:'Fleisch Portion Groß',price:1400,active:true},
+  {id:'lah',cat:'Lahmacun',name:'Lahmacun',price:450,active:true},
+  {id:'lahs',cat:'Lahmacun',name:'Lahmacun mit Salat',price:650,active:true},
+  {id:'lahsf',cat:'Lahmacun',name:'Lahmacun mit Salat & Fleisch',price:1050,active:true},
+  {id:'fs',cat:'Falafel & Veggie',name:'Falafel Sandwich',price:700,active:true},
+  {id:'fd',cat:'Falafel & Veggie',name:'Falafel Dürüm',price:800,active:true},
+  {id:'ft',cat:'Falafel & Veggie',name:'Falafel Teller',price:1100,active:true},
+  {id:'hs',cat:'Falafel & Veggie',name:'Halloumi Sandwich',price:650,active:true},
+  {id:'hw',cat:'Falafel & Veggie',name:'Halloumi Wrap',price:750,active:true},
+  {id:'pom',cat:'Snacks & Mehr',name:'Pommes',price:450,active:true},
+  {id:'cw',cat:'Snacks & Mehr',name:'Currywurst',price:500,active:true},
+  {id:'cwp',cat:'Snacks & Mehr',name:'Currywurst mit Pommes',price:750,active:true},
+  {id:'nug',cat:'Snacks & Mehr',name:'Nuggets — 6 Stück',price:500,active:true},
+  {id:'cola',cat:'Getränke',name:'Coca-Cola',price:250,active:true},
+  {id:'ayran',cat:'Getränke',name:'Ayran',price:200,active:true},
+  {id:'wasser',cat:'Getränke',name:'Wasser',price:200,active:true},
+  {id:'fanta',cat:'Getränke',name:'Fanta Orange',price:250,active:true},
+];
+
+let orders = JSON.parse(JSON.stringify(sampleOrders));
+let products = JSON.parse(JSON.stringify(menuItems));
+let filterStatus = 'all';
+
+function fmt(c){return(c/100).toFixed(2).replace('.',',')+' €'}
+function emojiFor(n){const l=n.toLowerCase();if(l.includes('dürüm')||l.includes('wrap'))return'🫔';if(l.includes('döner')||l.includes('sandwich')||l.includes('drehspieß'))return'🌯';if(l.includes('lahmacun'))return'🫓';if(l.includes('falafel'))return'🧆';if(l.includes('salat'))return'🥗';if(l.includes('halloumi'))return'🧀';if(l.includes('pommes'))return'🍟';if(l.includes('nugget')||l.includes('mozzarella'))return'🍗';if(l.includes('currywurst'))return'🌭';if(l.includes('cola')||l.includes('fanta')||l.includes('wasser')||l.includes('ayran')||l.includes('eistee'))return'🥤';if(l.includes('sauce')||l.includes('soße')||l.includes('extra'))return'🫙';if(l.includes('teller')||l.includes('portion')||l.includes('box'))return'🍽️';return'🌯'}
+function statusLabel(s){return{pending:'Ausstehend',preparing:'In Zubereitung',ready:'Bereit',delivered:'Geliefert'}[s]||s}
+function statusClass(s){return{pending:'status-pending',preparing:'status-preparing',ready:'status-ready',delivered:'status-delivered'}[s]||''}
+
+function doLogin(){
+  const v=document.getElementById('pw-input').value;
+  if(v===PASS){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';showPage('dashboard',document.querySelector('.nav-item'));}
+  else{document.getElementById('login-err').textContent='Falsches Passwort.';}
+}
+function doLogout(){document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('pw-input').value='';document.getElementById('login-err').textContent='';}
+
+function showPage(page,el){
+  currentPage=page;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const ma=document.getElementById('main-area');
+  if(page==='dashboard')renderDashboard(ma);
+  else if(page==='kueche')renderKueche(ma);
+  else if(page==='bestellungen')renderBestellungen(ma);
+  else if(page==='produkte')renderProdukte(ma);
+}
+
+function renderDashboard(el){
+  const todayOrders=orders.length;
+  const revenue=orders.reduce((s,o)=>s+o.total,0);
+  const pending=orders.filter(o=>o.status==='pending').length;
+  const preparing=orders.filter(o=>o.status==='preparing').length;
+  el.innerHTML=`
+  <div class="page-header">
+    <div><div class="page-title">Dashboard</div><div class="page-sub">Übersicht — 02.04.2026</div></div>
+    <div style="font-size:13px;color:var(--color-text-secondary)">Di–Do 10–22 Uhr</div>
+  </div>
+  <div class="content">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Bestellungen heute</div><div class="stat-value">${todayOrders}</div><span class="stat-badge badge-info">+3 vs gestern</span></div>
+      <div class="stat-card"><div class="stat-label">Umsatz heute</div><div class="stat-value">${fmt(revenue)}</div><span class="stat-badge badge-green">+12%</span></div>
+      <div class="stat-card"><div class="stat-label">Ausstehend</div><div class="stat-value">${pending}</div><span class="stat-badge badge-amber">Neu</span></div>
+      <div class="stat-card"><div class="stat-label">In Zubereitung</div><div class="stat-value">${preparing}</div><span class="stat-badge badge-info">Aktiv</span></div>
+    </div>
+    <div class="section-card">
+      <div class="section-card-header">
+        <span class="section-card-title">Neueste Bestellungen</span>
+        <button class="act-btn" onclick="showPage('bestellungen',document.querySelectorAll('.nav-item')[2])">Alle anzeigen</button>
+      </div>
+      ${orders.slice(0,4).map(o=>`
+      <div class="order-row">
+        <div><div class="order-num">#${o.num}</div><div class="order-meta">${o.time} Uhr</div></div>
+        <div><div class="order-customer">${o.customer}</div><div class="order-contact">${o.phone}</div></div>
+        <div><div class="order-total">${fmt(o.total)}</div><div class="order-type">${o.type==='delivery'?'🛵 Lieferung':'🏃 Abholung'}</div></div>
+        <div><span class="status-pill ${statusClass(o.status)}">${statusLabel(o.status)}</span></div>
+        <div class="order-actions">
+          ${o.status==='pending'?`<button class="act-btn primary" onclick="advanceOrder('${o.id}')">Annehmen</button>`:''}
+          ${o.status==='preparing'?`<button class="act-btn primary" onclick="advanceOrder('${o.id}')">Fertig</button>`:''}
+          <button class="act-btn print" onclick="printOrder('${o.id}')">🖨️</button>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderKueche(el){
+  const cols=['pending','preparing','ready'];
+  const labels={pending:'Ausstehend',preparing:'In Zubereitung',ready:'Bereit zur Abholung'};
+  el.innerHTML=`
+  <div class="page-header">
+    <div><div class="page-title">Küche — Live Dashboard</div><div class="page-sub">Echtzeit-Bestellübersicht für Küchenmitarbeiter</div></div>
+    <button class="act-btn" onclick="renderKueche(document.getElementById('main-area'))">🔄 Aktualisieren</button>
+  </div>
+  <div class="content">
+    <div class="kitchen-board">
+    ${cols.map(col=>`
+      <div class="kitchen-col-${col}">
+        <div class="kitchen-col-title">${labels[col]} (${orders.filter(o=>o.status===col).length})</div>
+        ${orders.filter(o=>o.status===col).map(o=>`
+        <div class="kitchen-ticket">
+          <div class="ticket-header">
+            <span class="ticket-num">#${o.num}</span>
+            <span class="ticket-time">${o.time} Uhr</span>
+          </div>
+          ${o.items.map(i=>`<div class="ticket-item"><span class="ticket-qty">${i.q}×</span><span>${i.n}</span></div>`).join('')}
+          <div class="ticket-customer">
+            ${o.type==='delivery'?'🛵 Lieferung':'🏃 Abholung'} — ${o.customer}
+            ${o.type==='delivery'&&o.address?`<br>${o.address}`:''}
+            <br>${o.phone}
+          </div>
+          ${col==='pending'?`<button class="ticket-btn ticket-btn-accept" onclick="advanceOrder('${o.id}');renderKueche(document.getElementById('main-area'))">✓ Annehmen & Zubereiten</button>`:''}
+          ${col==='preparing'?`<button class="ticket-btn ticket-btn-ready" onclick="advanceOrder('${o.id}');renderKueche(document.getElementById('main-area'))">✓ Fertig — Bereit!</button>`:''}
+          <button style="width:100%;margin-top:6px;padding:6px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:none;cursor:pointer;font-size:12px" onclick="printOrder('${o.id}')">🖨️ Drucken</button>
+        </div>`).join('')||`<div style="padding:20px;text-align:center;font-size:12px;color:var(--color-text-secondary)">Keine Bestellungen</div>`}
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderBestellungen(el){
+  const filtered=filterStatus==='all'?orders:orders.filter(o=>o.status===filterStatus);
+  const statuses=['all','pending','preparing','ready','delivered'];
+  const slabels={all:'Alle',pending:'Ausstehend',preparing:'In Zubereitung',ready:'Bereit',delivered:'Geliefert'};
+  el.innerHTML=`
+  <div class="page-header">
+    <div><div class="page-title">Bestellungen</div><div class="page-sub">${orders.length} Bestellungen heute</div></div>
+  </div>
+  <div class="content">
+    <div class="section-card">
+      <div class="orders-filter">
+        ${statuses.map(s=>`<button class="filter-btn ${filterStatus===s?'active':''}" onclick="filterStatus='${s}';renderBestellungen(document.getElementById('main-area'))">${slabels[s]} ${s==='all'?'('+orders.length+')':'('+orders.filter(o=>o.status===s).length+')'}</button>`).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:90px 1fr 120px 100px 140px;gap:12px;padding:10px 16px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)">
+        <div style="font-size:11px;font-weight:600;color:var(--color-text-secondary)">BESTELLUNG</div>
+        <div style="font-size:11px;font-weight:600;color:var(--color-text-secondary)">KUNDE</div>
+        <div style="font-size:11px;font-weight:600;color:var(--color-text-secondary)">BETRAG</div>
+        <div style="font-size:11px;font-weight:600;color:var(--color-text-secondary)">STATUS</div>
+        <div style="font-size:11px;font-weight:600;color:var(--color-text-secondary)">AKTIONEN</div>
+      </div>
+      ${filtered.map(o=>`
+      <div class="order-row">
+        <div><div class="order-num">#${o.num}</div><div class="order-meta">${o.time} — ${o.date}</div></div>
+        <div>
+          <div class="order-customer">${o.customer}</div>
+          <div class="order-contact">📞 ${o.phone}</div>
+          <div class="order-contact">✉️ ${o.email}</div>
+          ${o.type==='delivery'&&o.address?`<div class="order-contact">📍 ${o.address}</div>`:''}
+        </div>
+        <div><div class="order-total">${fmt(o.total)}</div><div class="order-type">${o.type==='delivery'?'🛵 Lieferung':'🏃 Abholung'}</div></div>
+        <div><span class="status-pill ${statusClass(o.status)}">${statusLabel(o.status)}</span></div>
+        <div class="order-actions" style="flex-wrap:wrap;gap:4px">
+          ${o.status==='pending'?`<button class="act-btn primary" onclick="advanceOrder('${o.id}');renderBestellungen(document.getElementById('main-area'))">Annehmen</button>`:''}
+          ${o.status==='preparing'?`<button class="act-btn primary" onclick="advanceOrder('${o.id}');renderBestellungen(document.getElementById('main-area'))">Fertig</button>`:''}
+          ${o.status==='ready'?`<button class="act-btn primary" onclick="advanceOrder('${o.id}');renderBestellungen(document.getElementById('main-area'))">Geliefert</button>`:''}
+          <button class="act-btn print" onclick="printOrder('${o.id}')">🖨️ Bon</button>
+        </div>
+      </div>`).join('')||`<div class="empty-state">Keine Bestellungen in dieser Kategorie</div>`}
+    </div>
+  </div>`;
+}
+
+function renderProdukte(el){
+  el.innerHTML=`
+  <div class="page-header">
+    <div><div class="page-title">Produkte verwalten</div><div class="page-sub">${products.length} Produkte im System</div></div>
+  </div>
+  <div class="content">
+    <div class="add-product-form">
+      <div style="font-size:14px;font-weight:600;margin-bottom:14px;color:var(--color-text-primary)">Neues Produkt hinzufügen</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Produktname</label><input type="text" id="new-name" placeholder="z.B. Döner Teller"></div>
+        <div class="form-group"><label>Kategorie</label><select id="new-cat"><option>Döner & Dürüm</option><option>Lahmacun</option><option>Falafel & Veggie</option><option>Snacks & Mehr</option><option>Getränke</option><option>Extras & Saucen</option></select></div>
+        <div class="form-group"><label>Preis (€)</label><input type="number" id="new-price" placeholder="8.00" step="0.50" min="0"></div>
+        <div class="form-group"><label>Beschreibung (optional)</label><input type="text" id="new-desc" placeholder="Kurze Beschreibung"></div>
+      </div>
+      <div class="form-actions">
+        <button class="act-btn" onclick="document.getElementById('new-name').value='';document.getElementById('new-price').value=''">Leeren</button>
+        <button class="act-btn primary" onclick="addProduct()">+ Produkt hinzufügen</button>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-card-header"><span class="section-card-title">Alle Produkte</span></div>
+      <div class="products-grid">
+        ${products.map(p=>`
+        <div class="product-item" id="pi-${p.id}">
+          <div class="product-item-emoji">${emojiFor(p.name)}</div>
+          <div class="product-item-info">
+            <div class="product-item-name">${p.name}</div>
+            <div class="product-item-cat">${p.cat}</div>
+            <div class="product-item-price">${fmt(p.price)}</div>
+          </div>
+          <div class="product-item-actions">
+            <button class="pi-btn" onclick="editProduct('${p.id}')" title="Bearbeiten">✏️</button>
+            <button class="pi-btn" onclick="deleteProduct('${p.id}')" title="Löschen">🗑️</button>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function advanceOrder(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o)return;
+  const flow={pending:'preparing',preparing:'ready',ready:'delivered'};
+  if(flow[o.status])o.status=flow[o.status];
+  if(currentPage==='dashboard')renderDashboard(document.getElementById('main-area'));
+}
+
+function addProduct(){
+  const name=document.getElementById('new-name').value.trim();
+  const cat=document.getElementById('new-cat').value;
+  const price=parseFloat(document.getElementById('new-price').value);
+  if(!name||isNaN(price)||price<=0){alert('Bitte Name und gültigen Preis eingeben.');return;}
+  const id='p'+Date.now();
+  products.push({id,cat,name,price:Math.round(price*100),active:true});
+  renderProdukte(document.getElementById('main-area'));
+}
+
+function deleteProduct(id){
+  if(confirm('Produkt wirklich löschen?')){
+    products=products.filter(p=>p.id!==id);
+    renderProdukte(document.getElementById('main-area'));
+  }
+}
+
+function editProduct(id){
+  const p=products.find(x=>x.id===id);
+  if(!p)return;
+  const newName=prompt('Produktname:',p.name);
+  if(!newName)return;
+  const newPrice=prompt('Preis (€):',( p.price/100).toFixed(2));
+  if(!newPrice)return;
+  p.name=newName.trim();
+  p.price=Math.round(parseFloat(newPrice)*100);
+  renderProdukte(document.getElementById('main-area'));
+}
+
+function printOrder(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o)return;
+  const win=window.open('','_blank','width=400,height=600');
+  if(!win){alert('Popup wurde blockiert. Bitte Popup-Blocker deaktivieren.');return;}
+  win.document.write(`<!DOCTYPE html><html><head><title>Bon #${o.num}</title>
+  <style>body{font-family:'Courier New',monospace;padding:20px;max-width:300px;margin:0 auto}
+  h1{font-size:20px;text-align:center;letter-spacing:3px;margin-bottom:4px}
+  .sub{text-align:center;font-size:12px;color:#666;margin-bottom:16px}
+  hr{border:none;border-top:2px dashed #ccc;margin:12px 0}
+  .row{display:flex;justify-content:space-between;font-size:13px;margin:3px 0}
+  .total{display:flex;justify-content:space-between;font-size:15px;font-weight:900;margin-top:8px}
+  .footer{text-align:center;font-size:11px;color:#666;margin-top:16px}
+  </style></head><body>
+  <h1>PABLO DÖNER</h1>
+  <div class="sub">Franziskusstr. 1, 44795 Bochum</div>
+  <hr>
+  <div class="row"><span>Bestellung #${o.num}</span><span>${o.time} Uhr</span></div>
+  <div class="row"><span>${o.type==='delivery'?'LIEFERUNG':'ABHOLUNG'}</span></div>
+  <div class="row"><span>Kunde: ${o.customer}</span></div>
+  <div class="row"><span>Tel: ${o.phone}</span></div>
+  ${o.address?`<div class="row"><span>Adresse: ${o.address}</span></div>`:''}
+  <hr>
+  ${o.items.map(i=>`<div class="row"><span>${i.q}x ${i.n}</span><span>${((i.p*i.q)/100).toFixed(2)} €</span></div>`).join('')}
+  <hr>
+  <div class="total"><span>GESAMT</span><span>${(o.total/100).toFixed(2)} €</span></div>
+  <div class="footer"><br>Vielen Dank für Ihre Bestellung!<br>pablodoner7@gmail.com</div>
+  <script>window.print();setTimeout(()=>window.close(),1000)<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+renderDashboard(document.getElementById('main-area'));
+</script>
