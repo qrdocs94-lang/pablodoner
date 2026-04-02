@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 // src/app/page.tsx — Main Order Terminal
 
 import { useState, useEffect, useCallback } from "react";
@@ -223,3 +224,4 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: () => void }
     </div>
   );
 }
+

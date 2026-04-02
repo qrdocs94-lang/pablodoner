@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 // src/app/kitchen/page.tsx — Realtime Kitchen Display
 
 import { useEffect, useState } from "react";
@@ -186,3 +187,4 @@ function KitchenCard({
     </div>
   );
 }
+
