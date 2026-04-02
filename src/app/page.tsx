@@ -92,7 +92,7 @@ export default function TerminalPage() {
             onClick={() => setCartOpen(true)}
             style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#F39C12', border: 'none', borderRadius: 12, padding: '10px 18px', cursor: 'pointer', fontWeight: 800, fontSize: 16, color: '#1A1A1A', transition: 'all 0.2s' }}
           >
-            🛒 {mounted ? totalFormatted : '0,00 €'}
+            🛒 {mounted ? (typeof totalFormatted === 'function' ? totalFormatted() : totalFormatted) : '0,00 €'}
             {mounted && totalItems > 0 && (
               <span className="cart-badge">{totalItems}</span>
             )}
