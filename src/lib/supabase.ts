@@ -6,8 +6,8 @@ let _supabase: SupabaseClient | null = null;
 
 export function getSupabase() {
   if (!_supabase) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aqcccwszfzwnowmkppxk.supabase.co";
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxY2Njd3N6Znp3bm93bWtwcHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTQzMzgsImV4cCI6MjA4OTgzMDMzOH0.oP50RbIcENZo_Vcn0sFw_WTwgv-pTp1D0NcW-XGB7vo";
     _supabase = createClient(url, key);
   }
   return _supabase;
@@ -93,5 +93,6 @@ export async function updateOrderStatus(
   const { error } = await supabase.from("orders").update(update).eq("id", orderId);
   if (error) throw error;
 }
+
 
 
