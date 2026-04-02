@@ -2,10 +2,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { Category, Product, Order } from "@/types";
 
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
 // ── API helpers ──────────────────────────────────────────────
 
@@ -81,3 +80,4 @@ export async function updateOrderStatus(
   const { error } = await supabase.from("orders").update(update).eq("id", orderId);
   if (error) throw error;
 }
+
