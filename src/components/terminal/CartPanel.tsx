@@ -12,7 +12,13 @@ interface Props {
 }
 
 export default function CartPanel({ open, onClose, onCheckout, isCheckingOut }: Props) {
-  const { items, orderType, removeItem, updateQuantity, subtotalCents, deliveryFeeCents, totalCents } = useCartStore();
+  const { items, orderType, removeItem, updateQuantity, subtotalCents, deliveryFeeCents, totalCents, deliveryAddress, setDeliveryAddress } = useCartStore();
+
+  const addressComplete =
+    orderType !== "delivery" ||
+    (deliveryAddress.street.trim() !== "" &&
+     deliveryAddress.city.trim() !== "" &&
+     deliveryAddress.zip.trim() !== "");
 
   return (
     <>
@@ -57,7 +63,6 @@ export default function CartPanel({ open, onClose, onCheckout, isCheckingOut }: 
                   <div className="text-3xl w-10 text-center flex-shrink-0">🌯</div>
                   <div className="flex-1 min-w-0">
                     <div className="font-black text-[#1A0800] text-sm">{item.product.name}</div>
-                    {/* Options summary */}
                     {Object.entries(item.options).filter(([, v]) => v && (Array.isArray(v) ? v.length > 0 : true)).length > 0 && (
                       <div className="text-xs text-[#7D6248] mt-0.5 truncate">
                         {Object.entries(item.options)
@@ -70,7 +75,6 @@ export default function CartPanel({ open, onClose, onCheckout, isCheckingOut }: 
                       {formatPrice(item.product.price_cents * item.quantity)}
                     </div>
                   </div>
-                  {/* Qty controls */}
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                       onClick={() => updateQuantity(item.cartKey, item.quantity - 1)}
@@ -88,6 +92,41 @@ export default function CartPanel({ open, onClose, onCheckout, isCheckingOut }: 
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Delivery address form */}
+          {orderType === "delivery" && items.length > 0 && (
+            <div className="mt-4 bg-white rounded-2xl p-4 shadow-sm">
+              <div className="font-black text-[#1A0800] text-sm mb-3">🛵 Lieferadresse</div>
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  placeholder="Straße & Hausnummer"
+                  value={deliveryAddress.street}
+                  onChange={(e) => setDeliveryAddress({ ...deliveryAddress, street: e.target.value })}
+                  className="w-full border-2 border-[#EDE0D0] rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-[#C0392B]"
+                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="PLZ"
+                    value={deliveryAddress.zip}
+                    onChange={(e) => setDeliveryAddress({ ...deliveryAddress, zip: e.target.value })}
+                    className="w-24 border-2 border-[#EDE0D0] rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-[#C0392B]"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Stadt"
+                    value={deliveryAddress.city}
+                    onChange={(e) => setDeliveryAddress({ ...deliveryAddress, city: e.target.value })}
+                    className="flex-1 border-2 border-[#EDE0D0] rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-[#C0392B]"
+                  />
+                </div>
+              </div>
+              {!addressComplete && (
+                <p className="text-xs text-[#C0392B] font-bold mt-2">⚠️ Bitte Adresse vollständig ausfüllen</p>
+              )}
             </div>
           )}
         </div>
@@ -112,7 +151,6 @@ export default function CartPanel({ open, onClose, onCheckout, isCheckingOut }: 
               </div>
             </div>
 
-            {/* Payment buttons */}
             <div className="flex gap-3 mb-3">
               <button className="flex-1 py-3 border-2 border-[#EDE0D0] rounded-xl font-bold text-sm text-[#4A3728] hover:border-[#C0392B] transition-colors">
                 💵 Bar
@@ -127,7 +165,7 @@ export default function CartPanel({ open, onClose, onCheckout, isCheckingOut }: 
 
             <button
               onClick={onCheckout}
-              disabled={isCheckingOut}
+              disabled={isCheckingOut || !addressComplete}
               className="w-full bg-[#C0392B] hover:bg-[#A01F1F] disabled:bg-gray-400 text-white font-black text-lg py-4 rounded-2xl transition-all active:scale-[0.98] shadow-lg"
             >
               {isCheckingOut ? "⏳ Weiterleitung zu Stripe..." : "JETZT BESTELLEN →"}
