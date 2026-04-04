@@ -19,7 +19,7 @@ const supabase = createClient(
 );
 
 const DELIVERY_FEE_CENTS = 199; // 1.99 €
-const APP_URL = Deno.env.get("APP_URL") ?? "https://pablo-doener.de";
+const APP_URL = Deno.env.get("APP_URL") ?? "https://pablodoner.vercel.app";
 
 // ─── Types ───────────────────────────────────────────────────
 interface CartItem {
