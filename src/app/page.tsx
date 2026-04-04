@@ -112,6 +112,40 @@ export default function TerminalPage() {
         <span style={{ color: '#F39C12' }}>Di–Do 10–22 Uhr &bull; Fr–So 12–00 Uhr</span>
       </div>
 
+      {/* NEUERÖFFNUNG BANNER */}
+      <style>{`
+        @keyframes pulse-banner {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.88; transform: scale(1.012); }
+        }
+        .neueroefffnung-banner {
+          animation: pulse-banner 2.2s ease-in-out infinite;
+        }
+        @keyframes confetti-spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        .spin { display: inline-block; animation: confetti-spin 3s linear infinite; }
+      `}</style>
+      <div
+        className="neueroefffnung-banner"
+        style={{
+          background: 'linear-gradient(135deg, #F4C842 0%, #F9D923 50%, #F4C842 100%)',
+          color: '#1A1A1A',
+          textAlign: 'center',
+          padding: '12px 20px',
+          fontSize: 15,
+          fontWeight: 800,
+          letterSpacing: 0.3,
+          boxShadow: '0 2px 8px rgba(244,200,66,0.5)',
+          borderBottom: '2px solid #D4A017',
+        }}
+      >
+        <span className="spin">🎉</span>
+        {' '}Große Neueröffnung im April 2026 — Wir freuen uns auf euch!{' '}
+        <span className="spin">🎉</span>
+      </div>
+
       {/* HEADER */}
       <header style={{ background: '#C0392B', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.25)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
