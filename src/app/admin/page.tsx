@@ -26,12 +26,12 @@ export default function AdminRoot() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    if (sessionStorage.getItem("pablo_admin") === "1") setLoggedIn(true);
+    if (localStorage.getItem("pablo_admin") === "1") setLoggedIn(true);
   }, []);
 
   const handleLogin = (pw: string) => {
     if (pw === ADMIN_PASSWORD) {
-      sessionStorage.setItem("pablo_admin", "1");
+      localStorage.setItem("pablo_admin", "1");
       setLoggedIn(true);
       return true;
     }
@@ -39,7 +39,7 @@ export default function AdminRoot() {
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("pablo_admin");
+    localStorage.removeItem("pablo_admin");
     setLoggedIn(false);
   };
 
