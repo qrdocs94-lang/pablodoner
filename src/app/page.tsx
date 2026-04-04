@@ -179,20 +179,7 @@ export default function TerminalPage() {
       </header>
 
       {/* HERO */}
-      <div style={{ position: 'relative', color: 'white', padding: '40px 20px 48px', textAlign: 'center', overflow: 'hidden', backgroundImage: "url('/done.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(180, 30, 20, 0.45)', zIndex: 1 }} />
-        <div style={{ position: 'relative', zIndex: 2 }}>
-          <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 52, letterSpacing: 4, color: '#F39C12', margin: 0 }}>BESTELL ONLINE</h1>
-          <p style={{ fontSize: 15, opacity: 0.85, marginTop: 6, fontWeight: 600 }}>🔥 Täglich frisch vom Spieß — Bochum's bester Döner</p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 16, flexWrap: 'wrap' }}>
-            {['✓ Frisch vom Spieß', '✓ Vegetarisch verfügbar', '✓ Lieferung & Abholung'].map(badge => (
-              <span key={badge} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700 }}>
-                {badge}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
+      <HeroSlider />
 
       {/* ERROR */}
       {error && (
@@ -325,6 +312,76 @@ function ProductCard({ product, index, onSelect }: { product: Product; index: nu
           >
             +
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Hero Slider ───────────────────────────────────────────────
+const HERO_SLIDES = ['/done.png', '/caption.jpg'];
+
+function HeroSlider() {
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActive(prev => (prev + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div style={{ position: 'relative', color: 'white', padding: '40px 20px 48px', textAlign: 'center', overflow: 'hidden', minHeight: 200 }}>
+      {/* Slides */}
+      {HERO_SLIDES.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover',
+            opacity: i === active ? 1 : 0,
+            transition: 'opacity 1s ease-in-out',
+            zIndex: 0,
+          }}
+        />
+      ))}
+
+      {/* Overlay */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 }} />
+
+      {/* Text content */}
+      <div style={{ position: 'relative', zIndex: 2 }}>
+        <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 52, letterSpacing: 4, color: '#F39C12', margin: 0 }}>BESTELL ONLINE</h1>
+        <p style={{ fontSize: 15, opacity: 0.85, marginTop: 6, fontWeight: 600 }}>🔥 Täglich frisch vom Spieß — Bochum's bester Döner</p>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 16, flexWrap: 'wrap' }}>
+          {['✓ Frisch vom Spieß', '✓ Vegetarisch verfügbar', '✓ Lieferung & Abholung'].map(badge => (
+            <span key={badge} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700 }}>
+              {badge}
+            </span>
+          ))}
+        </div>
+
+        {/* Dots */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 18 }}>
+          {HERO_SLIDES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              aria-label={`Bild ${i + 1}`}
+              style={{
+                width: i === active ? 20 : 8, height: 8,
+                borderRadius: 4, border: 'none', cursor: 'pointer',
+                background: i === active ? '#F39C12' : 'rgba(255,255,255,0.4)',
+                transition: 'all 0.3s ease',
+                padding: 0,
+              }}
+            />
+          ))}
         </div>
       </div>
     </div>
