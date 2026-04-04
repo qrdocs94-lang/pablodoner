@@ -804,6 +804,7 @@ function ProdukteTab({ products, categories, onRefresh }: {
   const [addImagePreview, setAddImagePreview] = useState<string | null>(null);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -853,7 +854,8 @@ function ProdukteTab({ products, categories, onRefresh }: {
     setError('');
     try {
       let image_url = editProduct.image_url;
-      if (editImageFile) image_url = await uploadProductImage(editImageFile, editProduct.id);
+      if (imageFile) image_url = await uploadProductImage(imageFile, editProduct.id);
+      else if (editImageFile) image_url = await uploadProductImage(editImageFile, editProduct.id);
       await updateProduct(editProduct.id, {
         name: editProduct.name,
         description: editProduct.description,
@@ -865,6 +867,7 @@ function ProdukteTab({ products, categories, onRefresh }: {
       setEditProduct(null);
       setEditImageFile(null);
       setEditImagePreview(null);
+      setImageFile(null);
       onRefresh();
     } catch (e: any) {
       setError(e.message ?? 'Fehler beim Speichern.');
@@ -956,7 +959,7 @@ function ProdukteTab({ products, categories, onRefresh }: {
               {/* Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>Produkt bearbeiten</div>
-                <button onClick={() => { setEditProduct(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', lineHeight: 1 }}>✕</button>
+                <button onClick={() => { setEditProduct(null); setEditImageFile(null); setEditImagePreview(null); setImageFile(null); setError(''); }} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', lineHeight: 1 }}>✕</button>
               </div>
 
               {/* Fields */}
@@ -986,37 +989,23 @@ function ProdukteTab({ products, categories, onRefresh }: {
 
               {error && <p style={{ color: '#C0392B', fontSize: 13, marginBottom: 12, fontWeight: 600 }}>{error}</p>}
 
-              {/* ── BILD UPLOAD ── direkt vor Speichern-Button ── */}
-              <div style={{ border: '2px dashed #C0392B', borderRadius: 10, padding: 16, marginBottom: 16, background: '#FFF8F7' }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: '#C0392B', margin: '0 0 12px 0' }}>📷 Produktbild hochladen</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{ width: 80, height: 80, borderRadius: 8, border: '2px solid #C0392B', overflow: 'hidden', background: 'white', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>
-                    {(editImagePreview ?? editProduct.image_url)
-                      ? <img src={editImagePreview ?? editProduct.image_url!} alt="Vorschau" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : '📷'
-                    }
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={handleEditImageChange}
-                      style={{ fontSize: 13, width: '100%', padding: '6px 0' }}
-                    />
-                    <p style={{ fontSize: 11, color: '#888', margin: '6px 0 0 0' }}>
-                      {editImageFile
-                        ? `✅ ${editImageFile.name}`
-                        : editProduct.image_url
-                          ? '✅ Aktuelles Bild vorhanden — neues hochladen zum Ersetzen'
-                          : 'JPG, PNG oder WEBP · optional'}
-                    </p>
-                  </div>
-                </div>
+              {/* ── BILD UPLOAD ── */}
+              <div style={{marginBottom:16, padding:16, border:'2px dashed #C0392B', borderRadius:8, background:'#fff8f7'}}>
+                <label style={{display:'block', fontWeight:700, marginBottom:8, color:'#C0392B', fontSize:13}}>
+                  📷 Produktbild hochladen
+                </label>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                  style={{display:'block', width:'100%'}}
+                />
+                {imageFile && <p style={{marginTop:8, fontSize:12, color:'#666'}}>✅ {imageFile.name}</p>}
               </div>
 
               {/* Footer buttons */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                <button onClick={() => { setEditProduct(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ padding: '9px 18px', border: '1px solid #ddd', borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13 }}>Abbrechen</button>
+                <button onClick={() => { setEditProduct(null); setEditImageFile(null); setEditImagePreview(null); setImageFile(null); setError(''); }} style={{ padding: '9px 18px', border: '1px solid #ddd', borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13 }}>Abbrechen</button>
                 <button onClick={handleSaveEdit} disabled={saving} style={{ padding: '9px 18px', background: '#C0392B', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: saving ? .6 : 1 }}>
                   {saving ? '⏳ Speichern...' : '✓ Speichern'}
                 </button>
