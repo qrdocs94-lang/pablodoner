@@ -962,6 +962,8 @@ function ProdukteTab({ products, categories, onRefresh }: {
                 <button onClick={() => { setEditProduct(null); setImageFile(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', lineHeight: 1 }}>✕</button>
               </div>
 
+              <div style={{background:'lime', padding:8, fontWeight:900}}>VERSION 2 - BILD UPLOAD AKTIV</div>
+
               {/* ── BILD UPLOAD — ganz oben, immer sichtbar ── */}
               <div style={{ marginBottom: 16, padding: 14, border: '3px dashed #C0392B', borderRadius: 10, background: '#fff0ee' }}>
                 <div style={{ fontWeight: 800, fontSize: 14, color: '#C0392B', marginBottom: 10 }}>📷 Produktbild hochladen</div>
