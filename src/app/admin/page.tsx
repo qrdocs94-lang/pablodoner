@@ -12,6 +12,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  uploadProductImage,
 } from "@/lib/supabase";
 import { Order, Product, Category, OrderStatus, formatPrice } from "@/types";
 
@@ -587,12 +588,32 @@ function ProdukteTab({ products, categories, onRefresh }: {
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [form, setForm] = useState({ name: '', category_id: categories[0]?.id ?? '', price: '', description: '' });
+  const [addImageFile, setAddImageFile] = useState<File | null>(null);
+  const [addImagePreview, setAddImagePreview] = useState<string | null>(null);
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   const catMap = Object.fromEntries(categories.map(c => [c.id, c.name]));
 
-  const resetForm = () => setForm({ name: '', category_id: categories[0]?.id ?? '', price: '', description: '' });
+  const resetForm = () => {
+    setForm({ name: '', category_id: categories[0]?.id ?? '', price: '', description: '' });
+    setAddImageFile(null);
+    setAddImagePreview(null);
+  };
+
+  const handleAddImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setAddImageFile(file);
+    setAddImagePreview(file ? URL.createObjectURL(file) : null);
+  };
+
+  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setEditImageFile(file);
+    setEditImagePreview(file ? URL.createObjectURL(file) : null);
+  };
 
   const handleAdd = async () => {
     if (!form.name.trim() || !form.price) { setError('Name und Preis sind pflicht.'); return; }
@@ -601,7 +622,9 @@ function ProdukteTab({ products, categories, onRefresh }: {
     setSaving(true);
     setError('');
     try {
-      await createProduct({ category_id: form.category_id, name: form.name.trim(), description: form.description.trim(), price_cents: priceCents });
+      let image_url: string | null = null;
+      if (addImageFile) image_url = await uploadProductImage(addImageFile);
+      await createProduct({ category_id: form.category_id, name: form.name.trim(), description: form.description.trim(), price_cents: priceCents, image_url });
       resetForm();
       setShowAddForm(false);
       onRefresh();
@@ -614,18 +637,22 @@ function ProdukteTab({ products, categories, onRefresh }: {
 
   const handleSaveEdit = async () => {
     if (!editProduct) return;
-    const priceCents = Math.round(parseFloat(String(editProduct.price_cents / 100).replace(',', '.')) * 100);
     setSaving(true);
     setError('');
     try {
+      let image_url = editProduct.image_url;
+      if (editImageFile) image_url = await uploadProductImage(editImageFile);
       await updateProduct(editProduct.id, {
         name: editProduct.name,
         description: editProduct.description,
         price_cents: editProduct.price_cents,
         category_id: editProduct.category_id,
         is_active: editProduct.is_active,
+        image_url,
       });
       setEditProduct(null);
+      setEditImageFile(null);
+      setEditImagePreview(null);
       onRefresh();
     } catch (e: any) {
       setError(e.message ?? 'Fehler beim Speichern.');
@@ -681,8 +708,16 @@ function ProdukteTab({ products, categories, onRefresh }: {
                 <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Kurze Beschreibung (optional)" style={inputStyle} />
               </FormField>
             </div>
-            {error && <p style={{ color: '#C0392B', fontSize: 13, marginBottom: 8 }}>{error}</p>}
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            <FormField label="Produktbild (optional)">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {addImagePreview && (
+                  <img src={addImagePreview} alt="Vorschau" style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee', flexShrink: 0 }} />
+                )}
+                <input type="file" accept="image/*" onChange={handleAddImageChange} style={{ fontSize: 13 }} />
+              </div>
+            </FormField>
+            {error && <p style={{ color: '#C0392B', fontSize: 13, marginBottom: 8, marginTop: 8 }}>{error}</p>}
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
               <button onClick={() => { setShowAddForm(false); resetForm(); setError(''); }} style={{ padding: '8px 16px', border: '1px solid #ddd', borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13 }}>Abbrechen</button>
               <button onClick={handleAdd} disabled={saving} style={{ padding: '8px 16px', background: '#C0392B', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                 {saving ? 'Speichern...' : '+ Hinzufügen'}
@@ -722,9 +757,26 @@ function ProdukteTab({ products, categories, onRefresh }: {
                 <input type="checkbox" id="is_active" checked={editProduct.is_active} onChange={e => setEditProduct(p => p ? { ...p, is_active: e.target.checked } : p)} />
                 <label htmlFor="is_active" style={{ fontSize: 13, fontWeight: 500 }}>Aktiv (im Bestellmenü sichtbar)</label>
               </div>
-              {error && <p style={{ color: '#C0392B', fontSize: 13, marginBottom: 8 }}>{error}</p>}
-              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                <button onClick={() => { setEditProduct(null); setError(''); }} style={{ padding: '8px 16px', border: '1px solid #ddd', borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13 }}>Abbrechen</button>
+              <FormField label="Produktbild">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  {(editImagePreview ?? editProduct.image_url) && (
+                    <img
+                      src={editImagePreview ?? editProduct.image_url!}
+                      alt="Vorschau"
+                      style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee', flexShrink: 0 }}
+                    />
+                  )}
+                  <div>
+                    <input type="file" accept="image/*" onChange={handleEditImageChange} style={{ fontSize: 13 }} />
+                    {editProduct.image_url && !editImageFile && (
+                      <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>Aktuelles Bild vorhanden. Neues Bild hochladen zum Ersetzen.</div>
+                    )}
+                  </div>
+                </div>
+              </FormField>
+              {error && <p style={{ color: '#C0392B', fontSize: 13, marginBottom: 8, marginTop: 8 }}>{error}</p>}
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
+                <button onClick={() => { setEditProduct(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ padding: '8px 16px', border: '1px solid #ddd', borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13 }}>Abbrechen</button>
                 <button onClick={handleSaveEdit} disabled={saving} style={{ padding: '8px 16px', background: '#C0392B', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                   {saving ? 'Speichern...' : '✓ Speichern'}
                 </button>
@@ -755,8 +807,11 @@ function ProdukteTab({ products, categories, onRefresh }: {
                       opacity: product.is_active ? 1 : 0.7,
                     }}
                   >
-                    <div style={{ fontSize: 26, width: 44, height: 44, background: '#F5F5F5', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      {getProductEmoji(product.name)}
+                    <div style={{ fontSize: 26, width: 44, height: 44, background: '#F5F5F5', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                      {product.image_url
+                        ? <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : getProductEmoji(product.name)
+                      }
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 600, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>

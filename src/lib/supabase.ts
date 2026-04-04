@@ -114,12 +114,25 @@ export async function fetchAllProductsAdmin(): Promise<Product[]> {
   return data ?? [];
 }
 
+// ── Admin: upload product image to Storage ─────────────────────
+export async function uploadProductImage(file: File): Promise<string> {
+  const ext = file.name.split(".").pop() ?? "jpg";
+  const fileName = `${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage
+    .from("product-images")
+    .upload(fileName, file, { upsert: false, contentType: file.type });
+  if (error) throw error;
+  const { data } = supabase.storage.from("product-images").getPublicUrl(fileName);
+  return data.publicUrl;
+}
+
 // ── Admin: create product ──────────────────────────────────────
 export async function createProduct(product: {
   category_id: string;
   name: string;
   description: string;
   price_cents: number;
+  image_url?: string | null;
   sort_order?: number;
 }): Promise<Product> {
   const { data, error } = await supabase
@@ -134,7 +147,7 @@ export async function createProduct(product: {
 // ── Admin: update product ──────────────────────────────────────
 export async function updateProduct(
   id: string,
-  updates: Partial<Pick<Product, "name" | "description" | "price_cents" | "is_active" | "category_id">>
+  updates: Partial<Pick<Product, "name" | "description" | "price_cents" | "is_active" | "category_id" | "image_url">>
 ): Promise<void> {
   const { error } = await supabase.from("products").update(updates).eq("id", id);
   if (error) throw error;
