@@ -949,7 +949,7 @@ function ProdukteTab({ products, categories, onRefresh }: {
 
               {/* Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                <div style={{ fontSize: 16, fontWeight: 700 }}>Produkt bearbeiten</div>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>Produkt bearbeiten ✏️</div>
                 <button onClick={() => { setEditProduct(null); setImageFile(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', lineHeight: 1 }}>✕</button>
               </div>
 
