@@ -181,7 +181,7 @@ export default function TerminalPage() {
       {/* HERO */}
       <div style={{ position: 'relative', color: 'white', padding: '40px 20px 48px', textAlign: 'center', overflow: 'hidden' }}>
         <img src="/done.webp" alt="" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(180, 30, 20, 0.75)', zIndex: 1 }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(180, 30, 20, 0.45)', zIndex: 1 }} />
         <div style={{ position: 'relative', zIndex: 2 }}>
           <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 52, letterSpacing: 4, color: '#F39C12', margin: 0 }}>BESTELL ONLINE</h1>
           <p style={{ fontSize: 15, opacity: 0.85, marginTop: 6, fontWeight: 600 }}>🔥 Täglich frisch vom Spieß — Bochum's bester Döner</p>
