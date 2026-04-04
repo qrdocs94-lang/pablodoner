@@ -121,7 +121,7 @@ export default function TerminalPage() {
               <img src="/logo.png" alt="Smile Döner" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.innerText = '🌯'; }} />
             </div>
             <div>
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, color: '#F39C12', lineHeight: 1 }}>Pablo</div>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, color: '#F39C12', lineHeight: 1 }}>Smile</div>
               <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, color: 'white', lineHeight: 1, letterSpacing: 3 }}>DÖNER</div>
             </div>
           </div>
@@ -179,15 +179,19 @@ export default function TerminalPage() {
       </header>
 
       {/* HERO */}
-      <div style={{ background: 'linear-gradient(135deg, #C0392B 0%, #96281B 100%)', color: 'white', padding: '40px 20px 48px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 52, letterSpacing: 4, color: '#F39C12', margin: 0 }}>BESTELL ONLINE</h1>
-        <p style={{ fontSize: 15, opacity: 0.85, marginTop: 6, fontWeight: 600 }}>🔥 Täglich frisch vom Spieß — Bochum's bester Döner</p>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 16, flexWrap: 'wrap' }}>
-          {['✓ Frisch vom Spieß', '✓ Vegetarisch verfügbar', '✓ Lieferung & Abholung'].map(badge => (
-            <span key={badge} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700 }}>
-              {badge}
-            </span>
-          ))}
+      <div style={{ position: 'relative', color: 'white', padding: '40px 20px 48px', textAlign: 'center', overflow: 'hidden' }}>
+        <img src="/done.webp" alt="" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(180, 30, 20, 0.75)', zIndex: 1 }} />
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 52, letterSpacing: 4, color: '#F39C12', margin: 0 }}>BESTELL ONLINE</h1>
+          <p style={{ fontSize: 15, opacity: 0.85, marginTop: 6, fontWeight: 600 }}>🔥 Täglich frisch vom Spieß — Bochum's bester Döner</p>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 16, flexWrap: 'wrap' }}>
+            {['✓ Frisch vom Spieß', '✓ Vegetarisch verfügbar', '✓ Lieferung & Abholung'].map(badge => (
+              <span key={badge} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700 }}>
+                {badge}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 

@@ -56,6 +56,7 @@ export interface Order {
   stripe_session_id: string | null;
   created_at: string;
   paid_at: string | null;
+  notes: string | null;
 }
 
 // Cart item (frontend only, before checkout)

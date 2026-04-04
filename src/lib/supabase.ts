@@ -145,3 +145,39 @@ export async function deleteProduct(id: string): Promise<void> {
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) throw error;
 }
+
+// ── Kitchen/Admin: full order update ──────────────────────────
+export async function updateOrderFull(
+  orderId: string,
+  updates: {
+    status?: string;
+    items?: import("@/types").OrderItem[];
+    delivery_address?: { street: string; city: string; zip: string } | null;
+    customer_name?: string | null;
+    customer_phone?: string | null;
+    notes?: string | null;
+  }
+): Promise<void> {
+  const payload: Record<string, unknown> = { ...updates };
+
+  // Recalculate totals when items change
+  if (updates.items) {
+    const subtotal = updates.items.reduce((sum, i) => sum + i.price_cents * i.quantity, 0);
+    payload.subtotal_cents = subtotal;
+    // Keep existing delivery fee — only recalculate subtotal/total
+    const { data: existing } = await supabase
+      .from("orders")
+      .select("delivery_fee_cents")
+      .eq("id", orderId)
+      .single();
+    const fee = existing?.delivery_fee_cents ?? 0;
+    payload.total_cents = subtotal + fee;
+  }
+
+  if (updates.status === "ready") {
+    payload.ready_at = new Date().toISOString();
+  }
+
+  const { error } = await supabase.from("orders").update(payload).eq("id", orderId);
+  if (error) throw error;
+}

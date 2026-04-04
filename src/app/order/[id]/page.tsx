@@ -86,7 +86,7 @@ export default function OrderStatusPage() {
     <div className="min-h-screen bg-[#FFF8F0] flex flex-col items-center justify-center p-6">
       {/* Header */}
       <div className="mb-6 text-center">
-        <div className="text-4xl font-black text-[#C0392B]">Pablo</div>
+        <div className="text-4xl font-black text-[#C0392B]">Smile</div>
         <div className="text-xl font-black text-gray-800 tracking-widest">DÖNER</div>
       </div>
  
