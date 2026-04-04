@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic';
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   supabase,
-  subscribeToOrders,
   updateOrderStatus,
   fetchAllOrdersAdmin,
   fetchCategories,
@@ -112,14 +111,6 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
 
   useEffect(() => {
     loadData();
-    const sub = subscribeToOrders((updated) => {
-      setOrders(prev => {
-        const exists = prev.find(o => o.id === updated.id);
-        if (exists) return prev.map(o => o.id === updated.id ? updated : o);
-        return [updated, ...prev];
-      });
-    });
-    return () => { sub.unsubscribe(); };
   }, [loadData]);
 
   const navItems: { id: AdminPage; icon: string; label: string }[] = [
