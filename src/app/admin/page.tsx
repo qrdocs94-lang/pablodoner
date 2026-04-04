@@ -978,36 +978,41 @@ function ProdukteTab({ products, categories, onRefresh }: {
                 </FormField>
               </div>
 
-              {/* Image upload — directly after description, before checkbox */}
-              <div style={{ border: '2px dashed #ddd', borderRadius: 10, padding: 16, marginBottom: 14 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 12 }}>🖼️ Produktbild</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{ width: 80, height: 80, borderRadius: 8, border: '1px solid #ddd', overflow: 'hidden', background: '#f5f5f5', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>
-                    {(editImagePreview ?? editProduct.image_url)
-                      ? <img src={editImagePreview ?? editProduct.image_url!} alt="Vorschau" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : '🖼️'
-                    }
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleEditImageChange} style={{ fontSize: 13, width: '100%' }} />
-                    <div style={{ fontSize: 11, color: '#888', marginTop: 6 }}>
-                      {editImageFile
-                        ? `✅ ${editImageFile.name}`
-                        : editProduct.image_url
-                          ? '✅ Bild vorhanden — neues hochladen zum Ersetzen'
-                          : 'JPG, PNG oder WEBP'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Aktiv checkbox */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                 <input type="checkbox" id="is_active_edit" checked={editProduct.is_active} onChange={e => setEditProduct(p => p ? { ...p, is_active: e.target.checked } : p)} />
                 <label htmlFor="is_active_edit" style={{ fontSize: 13, fontWeight: 500 }}>Aktiv (im Bestellmenü sichtbar)</label>
               </div>
 
               {error && <p style={{ color: '#C0392B', fontSize: 13, marginBottom: 12, fontWeight: 600 }}>{error}</p>}
+
+              {/* ── BILD UPLOAD ── direkt vor Speichern-Button ── */}
+              <div style={{ border: '2px dashed #C0392B', borderRadius: 10, padding: 16, marginBottom: 16, background: '#FFF8F7' }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: '#C0392B', margin: '0 0 12px 0' }}>📷 Produktbild hochladen</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 80, height: 80, borderRadius: 8, border: '2px solid #C0392B', overflow: 'hidden', background: 'white', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>
+                    {(editImagePreview ?? editProduct.image_url)
+                      ? <img src={editImagePreview ?? editProduct.image_url!} alt="Vorschau" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : '📷'
+                    }
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handleEditImageChange}
+                      style={{ fontSize: 13, width: '100%', padding: '6px 0' }}
+                    />
+                    <p style={{ fontSize: 11, color: '#888', margin: '6px 0 0 0' }}>
+                      {editImageFile
+                        ? `✅ ${editImageFile.name}`
+                        : editProduct.image_url
+                          ? '✅ Aktuelles Bild vorhanden — neues hochladen zum Ersetzen'
+                          : 'JPG, PNG oder WEBP · optional'}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
               {/* Footer buttons */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
