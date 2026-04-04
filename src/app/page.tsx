@@ -116,15 +116,7 @@ export default function TerminalPage() {
       <header style={{ background: '#C0392B', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.25)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'white', border: '2px solid #F39C12', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, overflow: 'hidden' }}>
-              <img src="/logo.png" alt="Smile Döner" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.innerText = '🌯'; }} />
-            </div>
-            <div>
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, color: '#F39C12', lineHeight: 1 }}>Smile</div>
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, color: 'white', lineHeight: 1, letterSpacing: 3 }}>DÖNER</div>
-            </div>
-          </div>
+          <img src="/smile_doener_logo_gold_v3.svg" alt="Smile Döner" style={{ height: 50, width: 'auto' }} />
 
           {/* Mode Toggle */}
           <div style={{ display: 'flex', gap: 6, background: 'rgba(0,0,0,0.2)', padding: 4, borderRadius: 10 }}>
