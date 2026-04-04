@@ -108,6 +108,31 @@ body{background:var(--color-background-tertiary)}
 .form-actions{display:flex;gap:8px;justify-content:flex-end}
 
 .empty-state{text-align:center;padding:48px 20px;color:var(--color-text-secondary)}
+
+/* Product image thumbnail */
+.product-item-emoji img{width:100%;height:100%;object-fit:cover;border-radius:var(--border-radius-md)}
+
+/* Edit product modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-card{background:white;border-radius:16px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3)}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:20px;color:#1a1a1a}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.modal-field label{font-size:12px;color:#666;display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;padding:8px 10px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;outline:none;box-sizing:border-box;transition:border-color 0.15s}
+.modal-field input:focus,.modal-field select:focus{border-color:var(--red)}
+.modal-field.full{grid-column:1/-1}
+.img-preview{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid #eee;flex-shrink:0}
+.img-upload-row{display:flex;align-items:center;gap:12px;margin-top:4px}
+.img-hint{font-size:11px;color:#999;margin-top:4px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #f0f0f0}
+.modal-btn{padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s}
+.modal-btn.cancel{background:#f5f5f5;color:#555;border:1px solid #ddd}
+.modal-btn.cancel:hover{background:#ebebeb}
+.modal-btn.save{background:var(--red);color:white}
+.modal-btn.save:hover{background:var(--red-dark)}
+.modal-btn:disabled{opacity:.5;cursor:not-allowed}
+.modal-error{color:#c0392b;font-size:13px;margin-top:10px;font-weight:500}
+.uploading-indicator{font-size:12px;color:#888;margin-top:6px}
 .print-modal-bg{min-height:400px;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;border-radius:var(--border-radius-lg);padding:20px}
 .print-card{background:white;border-radius:var(--border-radius-lg);padding:24px;width:320px;font-family:'Courier New',monospace}
 .print-header{text-align:center;border-bottom:2px dashed #ccc;padding-bottom:12px;margin-bottom:12px}
@@ -150,13 +175,59 @@ body{background:var(--color-background-tertiary)}
   </div>
 </div>
 
+<!-- Product edit modal -->
+<div id="product-modal" class="modal-bg" style="display:none">
+  <div class="modal-card">
+    <div class="modal-title" id="modal-title">Produkt bearbeiten</div>
+    <div class="modal-grid">
+      <div class="modal-field"><label>Produktname *</label><input type="text" id="m-name" placeholder="z.B. Döner Teller"></div>
+      <div class="modal-field"><label>Kategorie *</label>
+        <select id="m-cat">
+          <option>Döner & Dürüm</option><option>Lahmacun</option><option>Falafel & Veggie</option>
+          <option>Snacks & Mehr</option><option>Getränke</option><option>Extras & Saucen</option>
+        </select>
+      </div>
+      <div class="modal-field"><label>Preis (€) *</label><input type="text" id="m-price" placeholder="8.00"></div>
+      <div class="modal-field"><label>Aktiv</label>
+        <select id="m-active"><option value="1">✅ Aktiv</option><option value="0">🚫 Inaktiv</option></select>
+      </div>
+      <div class="modal-field full"><label>Beschreibung</label><input type="text" id="m-desc" placeholder="Kurze Beschreibung (optional)"></div>
+      <div class="modal-field full">
+        <label>Produktbild</label>
+        <div class="img-upload-row">
+          <img id="m-img-preview" class="img-preview" src="" alt="" style="display:none">
+          <div>
+            <input type="file" id="m-img-file" accept="image/*" onchange="handleModalImageChange()">
+            <div class="img-hint" id="m-img-hint"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-error" id="modal-error"></div>
+    <div class="uploading-indicator" id="modal-uploading" style="display:none">⏳ Bild wird hochgeladen...</div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="closeProductModal()">Abbrechen</button>
+      <button class="modal-btn save" id="modal-save-btn" onclick="saveProductModal()">✓ Speichern</button>
+    </div>
+  </div>
+</div>
+
 <div id="print-overlay" style="display:none;min-height:400px;background:rgba(0,0,0,0.55);position:absolute;inset:0;z-index:999;display:none;align-items:center;justify-content:center;border-radius:var(--border-radius-lg)">
   <div class="print-card" id="print-card-content">
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 const PASS = 'pablo2024';
+
+// ── Supabase client ──────────────────────────────────────────
+const SUPA_URL = 'https://aqcccwszfzwnowmkppxk.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxY2Njd3N6Znp3bm93bWtwcHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTQzMzgsImV4cCI6MjA4OTgzMDMzOH0.oP50RbIcENZo_Vcn0sFw_WTwgv-pTp1D0NcW-XGB7vo';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+let dbProducts = []; // loaded from Supabase
+let modalEditId = null; // null = add mode, string = edit mode
 let currentPage = 'dashboard';
 
 const sampleOrders = [
@@ -218,7 +289,7 @@ function showPage(page,el){
   if(page==='dashboard')renderDashboard(ma);
   else if(page==='kueche')renderKueche(ma);
   else if(page==='bestellungen')renderBestellungen(ma);
-  else if(page==='produkte')renderProdukte(ma);
+  else if(page==='produkte')loadAndRenderProdukte();
 }
 
 function renderDashboard(el){
@@ -335,39 +406,39 @@ function renderBestellungen(el){
   </div>`;
 }
 
+async function loadAndRenderProdukte(){
+  const ma = document.getElementById('main-area');
+  ma.innerHTML = '<div style="padding:40px;text-align:center;color:#888">⏳ Produkte werden geladen...</div>';
+  const {data, error} = await sb.from('products').select('*').order('sort_order');
+  if(error){ ma.innerHTML=`<div style="padding:40px;color:#c0392b">Fehler: ${error.message}</div>`; return; }
+  dbProducts = data || [];
+  renderProdukte(ma);
+}
+
 function renderProdukte(el){
+  const cats = [...new Set(dbProducts.map(p=>p.category_id))];
   el.innerHTML=`
   <div class="page-header">
-    <div><div class="page-title">Produkte verwalten</div><div class="page-sub">${products.length} Produkte im System</div></div>
+    <div><div class="page-title">Produkte verwalten</div><div class="page-sub">${dbProducts.length} Produkte in Supabase</div></div>
+    <button class="act-btn primary" onclick="openAddModal()">+ Produkt hinzufügen</button>
   </div>
   <div class="content">
-    <div class="add-product-form">
-      <div style="font-size:14px;font-weight:600;margin-bottom:14px;color:var(--color-text-primary)">Neues Produkt hinzufügen</div>
-      <div class="form-grid">
-        <div class="form-group"><label>Produktname</label><input type="text" id="new-name" placeholder="z.B. Döner Teller"></div>
-        <div class="form-group"><label>Kategorie</label><select id="new-cat"><option>Döner & Dürüm</option><option>Lahmacun</option><option>Falafel & Veggie</option><option>Snacks & Mehr</option><option>Getränke</option><option>Extras & Saucen</option></select></div>
-        <div class="form-group"><label>Preis (€)</label><input type="number" id="new-price" placeholder="8.00" step="0.50" min="0"></div>
-        <div class="form-group"><label>Beschreibung (optional)</label><input type="text" id="new-desc" placeholder="Kurze Beschreibung"></div>
-      </div>
-      <div class="form-actions">
-        <button class="act-btn" onclick="document.getElementById('new-name').value='';document.getElementById('new-price').value=''">Leeren</button>
-        <button class="act-btn primary" onclick="addProduct()">+ Produkt hinzufügen</button>
-      </div>
-    </div>
     <div class="section-card">
-      <div class="section-card-header"><span class="section-card-title">Alle Produkte</span></div>
+      <div class="section-card-header"><span class="section-card-title">Alle Produkte</span><button class="act-btn" onclick="loadAndRenderProdukte()">🔄 Neu laden</button></div>
       <div class="products-grid">
-        ${products.map(p=>`
-        <div class="product-item" id="pi-${p.id}">
-          <div class="product-item-emoji">${emojiFor(p.name)}</div>
+        ${dbProducts.length===0?'<div class="empty-state">Keine Produkte gefunden</div>':dbProducts.map(p=>`
+        <div class="product-item" id="pi-${p.id}" style="opacity:${p.is_active?1:0.55};border-style:${p.is_active?'solid':'dashed'}">
+          <div class="product-item-emoji" style="overflow:hidden">
+            ${p.image_url?`<img src="${p.image_url}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:`<span>${emojiFor(p.name)}</span>`}
+          </div>
           <div class="product-item-info">
             <div class="product-item-name">${p.name}</div>
-            <div class="product-item-cat">${p.cat}</div>
-            <div class="product-item-price">${fmt(p.price)}</div>
+            <div class="product-item-cat">${p.is_active?'✅ Aktiv':'🚫 Inaktiv'}</div>
+            <div class="product-item-price">${fmt(p.price_cents)}</div>
           </div>
           <div class="product-item-actions">
-            <button class="pi-btn" onclick="editProduct('${p.id}')" title="Bearbeiten">✏️</button>
-            <button class="pi-btn" onclick="deleteProduct('${p.id}')" title="Löschen">🗑️</button>
+            <button class="pi-btn" onclick="openEditModal('${p.id}')" title="Bearbeiten">✏️</button>
+            <button class="pi-btn" onclick="deleteProduct('${p.id}','${p.name.replace(/'/g,"\\'")}')" title="Löschen">🗑️</button>
           </div>
         </div>`).join('')}
       </div>
@@ -383,33 +454,107 @@ function advanceOrder(id){
   if(currentPage==='dashboard')renderDashboard(document.getElementById('main-area'));
 }
 
-function addProduct(){
-  const name=document.getElementById('new-name').value.trim();
-  const cat=document.getElementById('new-cat').value;
-  const price=parseFloat(document.getElementById('new-price').value);
-  if(!name||isNaN(price)||price<=0){alert('Bitte Name und gültigen Preis eingeben.');return;}
-  const id='p'+Date.now();
-  products.push({id,cat,name,price:Math.round(price*100),active:true});
-  renderProdukte(document.getElementById('main-area'));
+// ── Modal helpers ────────────────────────────────────────────
+function openAddModal(){
+  modalEditId = null;
+  document.getElementById('modal-title').textContent = '+ Neues Produkt';
+  document.getElementById('m-name').value = '';
+  document.getElementById('m-cat').value = 'Döner & Dürüm';
+  document.getElementById('m-price').value = '';
+  document.getElementById('m-desc').value = '';
+  document.getElementById('m-active').value = '1';
+  document.getElementById('m-img-file').value = '';
+  document.getElementById('m-img-preview').style.display = 'none';
+  document.getElementById('m-img-hint').textContent = '';
+  document.getElementById('modal-error').textContent = '';
+  document.getElementById('modal-uploading').style.display = 'none';
+  document.getElementById('product-modal').style.display = 'flex';
 }
 
-function deleteProduct(id){
-  if(confirm('Produkt wirklich löschen?')){
-    products=products.filter(p=>p.id!==id);
-    renderProdukte(document.getElementById('main-area'));
+function openEditModal(id){
+  const p = dbProducts.find(x => x.id === id);
+  if(!p) return;
+  modalEditId = id;
+  document.getElementById('modal-title').textContent = 'Produkt bearbeiten';
+  document.getElementById('m-name').value = p.name || '';
+  document.getElementById('m-cat').value = 'Döner & Dürüm'; // fallback
+  document.getElementById('m-price').value = (p.price_cents / 100).toFixed(2);
+  document.getElementById('m-desc').value = p.description || '';
+  document.getElementById('m-active').value = p.is_active ? '1' : '0';
+  document.getElementById('m-img-file').value = '';
+  document.getElementById('modal-error').textContent = '';
+  document.getElementById('modal-uploading').style.display = 'none';
+  const preview = document.getElementById('m-img-preview');
+  if(p.image_url){ preview.src = p.image_url; preview.style.display = 'block'; document.getElementById('m-img-hint').textContent = 'Aktuelles Bild. Neues hochladen zum Ersetzen.'; }
+  else { preview.style.display = 'none'; document.getElementById('m-img-hint').textContent = ''; }
+  document.getElementById('product-modal').style.display = 'flex';
+}
+
+function closeProductModal(){
+  document.getElementById('product-modal').style.display = 'none';
+  modalEditId = null;
+}
+
+function handleModalImageChange(){
+  const file = document.getElementById('m-img-file').files[0];
+  if(!file) return;
+  const preview = document.getElementById('m-img-preview');
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+  document.getElementById('m-img-hint').textContent = file.name;
+}
+
+async function saveProductModal(){
+  const name = document.getElementById('m-name').value.trim();
+  const cat  = document.getElementById('m-cat').value;
+  const priceRaw = document.getElementById('m-price').value.replace(',','.');
+  const desc = document.getElementById('m-desc').value.trim();
+  const isActive = document.getElementById('m-active').value === '1';
+  const errEl = document.getElementById('modal-error');
+  errEl.textContent = '';
+
+  if(!name){ errEl.textContent = 'Bitte Produktname eingeben.'; return; }
+  const price = parseFloat(priceRaw);
+  if(isNaN(price) || price <= 0){ errEl.textContent = 'Bitte gültigen Preis eingeben.'; return; }
+  const priceCents = Math.round(price * 100);
+
+  const saveBtn = document.getElementById('modal-save-btn');
+  saveBtn.disabled = true;
+
+  // Upload image if selected
+  let image_url = modalEditId ? (dbProducts.find(p=>p.id===modalEditId)?.image_url || null) : null;
+  const imgFile = document.getElementById('m-img-file').files[0];
+  if(imgFile){
+    document.getElementById('modal-uploading').style.display = 'block';
+    const ext = imgFile.name.split('.').pop();
+    const fileName = crypto.randomUUID() + '.' + ext;
+    const {error: upErr} = await sb.storage.from('product-images').upload(fileName, imgFile, {contentType: imgFile.type});
+    if(upErr){ errEl.textContent = 'Bild-Upload fehlgeschlagen: ' + upErr.message; saveBtn.disabled=false; document.getElementById('modal-uploading').style.display='none'; return; }
+    const {data: urlData} = sb.storage.from('product-images').getPublicUrl(fileName);
+    image_url = urlData.publicUrl;
+    document.getElementById('modal-uploading').style.display = 'none';
   }
+
+  if(modalEditId){
+    // Update existing product
+    const {error} = await sb.from('products').update({name, description: desc, price_cents: priceCents, is_active: isActive, image_url}).eq('id', modalEditId);
+    if(error){ errEl.textContent = 'Fehler: ' + error.message; saveBtn.disabled=false; return; }
+  } else {
+    // Insert new product
+    const {error} = await sb.from('products').insert({name, description: desc, price_cents: priceCents, is_active: isActive, image_url, options_schema: [], sort_order: 99});
+    if(error){ errEl.textContent = 'Fehler: ' + error.message; saveBtn.disabled=false; return; }
+  }
+
+  saveBtn.disabled = false;
+  closeProductModal();
+  await loadAndRenderProdukte();
 }
 
-function editProduct(id){
-  const p=products.find(x=>x.id===id);
-  if(!p)return;
-  const newName=prompt('Produktname:',p.name);
-  if(!newName)return;
-  const newPrice=prompt('Preis (€):',( p.price/100).toFixed(2));
-  if(!newPrice)return;
-  p.name=newName.trim();
-  p.price=Math.round(parseFloat(newPrice)*100);
-  renderProdukte(document.getElementById('main-area'));
+async function deleteProduct(id, name){
+  if(!confirm(`"${name}" wirklich löschen?`)) return;
+  const {error} = await sb.from('products').delete().eq('id', id);
+  if(error){ alert('Fehler beim Löschen: ' + error.message); return; }
+  await loadAndRenderProdukte();
 }
 
 function printOrder(id){
