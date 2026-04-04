@@ -957,13 +957,28 @@ function ProdukteTab({ products, categories, onRefresh }: {
             <div style={{ background: 'white', borderRadius: 16, width: '100%', maxWidth: 520, maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', padding: 24 }}>
 
               {/* Header */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>Produkt bearbeiten</div>
-                <button onClick={() => { setEditProduct(null); setEditImageFile(null); setEditImagePreview(null); setImageFile(null); setError(''); }} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', lineHeight: 1 }}>✕</button>
+                <button onClick={() => { setEditProduct(null); setImageFile(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', lineHeight: 1 }}>✕</button>
+              </div>
+
+              {/* ── BILD UPLOAD — ganz oben, immer sichtbar ── */}
+              <div style={{ marginBottom: 16, padding: 14, border: '3px dashed #C0392B', borderRadius: 10, background: '#fff0ee' }}>
+                <div style={{ fontWeight: 800, fontSize: 14, color: '#C0392B', marginBottom: 10 }}>📷 Produktbild hochladen</div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'block', width: '100%', fontSize: 14, padding: '4px 0' }}
+                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                />
+                {imageFile
+                  ? <div style={{ marginTop: 8, color: '#1a7a1a', fontWeight: 700, fontSize: 13 }}>✅ {imageFile.name}</div>
+                  : <div style={{ marginTop: 6, color: '#999', fontSize: 12 }}>JPG, PNG oder WEBP — optional</div>
+                }
               </div>
 
               {/* Fields */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
                 <FormField label="Produktname">
                   <input value={editProduct.name} onChange={e => setEditProduct(p => p ? { ...p, name: e.target.value } : p)} style={inputStyle} />
                 </FormField>
@@ -972,9 +987,8 @@ function ProdukteTab({ products, categories, onRefresh }: {
                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </FormField>
-                <FormField label="Preis (Cent)">
+                <FormField label="Preis (Cent) — z.B. 800 = 8,00 €">
                   <input type="number" value={editProduct.price_cents} onChange={e => setEditProduct(p => p ? { ...p, price_cents: parseInt(e.target.value) || 0 } : p)} style={inputStyle} />
-                  <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>= {fmt(editProduct.price_cents)} (z.B. 800 = 8,00 €)</div>
                 </FormField>
                 <FormField label="Beschreibung">
                   <input value={editProduct.description ?? ''} onChange={e => setEditProduct(p => p ? { ...p, description: e.target.value } : p)} style={inputStyle} />
@@ -987,19 +1001,11 @@ function ProdukteTab({ products, categories, onRefresh }: {
                 <label htmlFor="is_active_edit" style={{ fontSize: 13, fontWeight: 500 }}>Aktiv (im Bestellmenü sichtbar)</label>
               </div>
 
-              <div style={{margin:'16px 0', padding:16, border:'2px dashed #C0392B', borderRadius:8, background:'#fff8f7'}}>
-                <label style={{display:'block', fontWeight:700, marginBottom:8, color:'#C0392B'}}>
-                  📷 Produktbild hochladen
-                </label>
-                <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
-                {imageFile && <p style={{color:'green', marginTop:6, fontSize:12}}>✅ {imageFile.name} ausgewählt</p>}
-              </div>
-
               {error && <p style={{ color: '#C0392B', fontSize: 13, marginBottom: 12, fontWeight: 600 }}>{error}</p>}
 
               {/* Footer buttons */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                <button onClick={() => { setEditProduct(null); setEditImageFile(null); setEditImagePreview(null); setImageFile(null); setError(''); }} style={{ padding: '9px 18px', border: '1px solid #ddd', borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13 }}>Abbrechen</button>
+                <button onClick={() => { setEditProduct(null); setImageFile(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ padding: '9px 18px', border: '1px solid #ddd', borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13 }}>Abbrechen</button>
                 <button onClick={handleSaveEdit} disabled={saving} style={{ padding: '9px 18px', background: '#C0392B', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: saving ? .6 : 1 }}>
                   {saving ? '⏳ Speichern...' : '✓ Speichern'}
                 </button>
