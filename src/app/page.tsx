@@ -179,8 +179,7 @@ export default function TerminalPage() {
       </header>
 
       {/* HERO */}
-      <div style={{ position: 'relative', color: 'white', padding: '40px 20px 48px', textAlign: 'center', overflow: 'hidden' }}>
-        <img src="/done.webp" alt="" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
+      <div style={{ position: 'relative', color: 'white', padding: '40px 20px 48px', textAlign: 'center', overflow: 'hidden', backgroundImage: "url('/done.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(180, 30, 20, 0.45)', zIndex: 1 }} />
         <div style={{ position: 'relative', zIndex: 2 }}>
           <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 52, letterSpacing: 4, color: '#F39C12', margin: 0 }}>BESTELL ONLINE</h1>
