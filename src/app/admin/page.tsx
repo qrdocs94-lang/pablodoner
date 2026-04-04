@@ -987,21 +987,15 @@ function ProdukteTab({ products, categories, onRefresh }: {
                 <label htmlFor="is_active_edit" style={{ fontSize: 13, fontWeight: 500 }}>Aktiv (im Bestellmenü sichtbar)</label>
               </div>
 
-              {error && <p style={{ color: '#C0392B', fontSize: 13, marginBottom: 12, fontWeight: 600 }}>{error}</p>}
-
-              {/* ── BILD UPLOAD ── */}
-              <div style={{marginBottom:16, padding:16, border:'2px dashed #C0392B', borderRadius:8, background:'#fff8f7'}}>
-                <label style={{display:'block', fontWeight:700, marginBottom:8, color:'#C0392B', fontSize:13}}>
+              <div style={{margin:'16px 0', padding:16, border:'2px dashed #C0392B', borderRadius:8, background:'#fff8f7'}}>
+                <label style={{display:'block', fontWeight:700, marginBottom:8, color:'#C0392B'}}>
                   📷 Produktbild hochladen
                 </label>
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                  style={{display:'block', width:'100%'}}
-                />
-                {imageFile && <p style={{marginTop:8, fontSize:12, color:'#666'}}>✅ {imageFile.name}</p>}
+                <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
+                {imageFile && <p style={{color:'green', marginTop:6, fontSize:12}}>✅ {imageFile.name} ausgewählt</p>}
               </div>
+
+              {error && <p style={{ color: '#C0392B', fontSize: 13, marginBottom: 12, fontWeight: 600 }}>{error}</p>}
 
               {/* Footer buttons */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
