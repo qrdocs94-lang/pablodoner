@@ -282,6 +282,7 @@ function DashboardTab({ orders, onNavigate, onUpdateStatus }: {
   onNavigate: (p: AdminPage) => void;
   onUpdateStatus: (id: string, status: "preparing" | "ready" | "cancelled") => void;
 }) {
+  const [showMonthly, setShowMonthly] = useState(false);
   const todayStr = new Date().toLocaleDateString('de-DE');
   const todayOrders = orders.filter(o => new Date(o.created_at).toLocaleDateString('de-DE') === todayStr);
   const revenue = todayOrders.reduce((s, o) => s + o.total_cents, 0);
@@ -297,7 +298,18 @@ function DashboardTab({ orders, onNavigate, onUpdateStatus }: {
 
   return (
     <div>
-      <PageHeader title="Dashboard" sub={`Übersicht — ${new Date().toLocaleDateString('de-DE')}`} />
+      <PageHeader
+        title="Dashboard"
+        sub={`Übersicht — ${new Date().toLocaleDateString('de-DE')}`}
+        action={
+          <button
+            onClick={() => setShowMonthly(true)}
+            style={{ padding: '8px 16px', background: '#1a1a1a', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+          >
+            📄 Monatsbericht
+          </button>
+        }
+      />
       <div style={{ padding: '20px 24px' }}>
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
@@ -322,6 +334,206 @@ function DashboardTab({ orders, onNavigate, onUpdateStatus }: {
           </div>
           <OrderTable orders={orders.slice(0, 5)} onUpdateStatus={onUpdateStatus} compact />
         </div>
+      </div>
+
+      {showMonthly && <MonthlyReportModal onClose={() => setShowMonthly(false)} />}
+    </div>
+  );
+}
+
+// ── Monthly Report Modal ──────────────────────────────────────
+function MonthlyReportModal({ onClose }: { onClose: () => void }) {
+  const [monthOrders, setMonthOrders] = useState<Order[] | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleted, setDeleted] = useState(false);
+  const [error, setError] = useState('');
+
+  const now = new Date();
+  const monthName = now.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+
+  useEffect(() => {
+    const y = now.getFullYear(), m = now.getMonth();
+    const from = new Date(y, m, 1).toISOString();
+    const to   = new Date(y, m + 1, 0, 23, 59, 59).toISOString();
+    supabase
+      .from('orders')
+      .select('*')
+      .gte('created_at', from)
+      .lte('created_at', to)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setMonthOrders(data ?? []));
+  }, []);
+
+  const total    = monthOrders?.reduce((s, o) => s + o.total_cents, 0) ?? 0;
+  const pickup   = monthOrders?.filter(o => o.order_type === 'pickup').length ?? 0;
+  const delivery = monthOrders?.filter(o => o.order_type === 'delivery').length ?? 0;
+
+  const statusLbl = (s: string) => ({ pending: 'Ausstehend', paid: 'Bezahlt', preparing: 'Zubereitung', ready: 'Fertig', cancelled: 'Storniert' }[s] ?? s);
+  const statusClr = (s: string) => ({ paid: '#1d4ed8', preparing: '#b45309', ready: '#15803d', cancelled: '#dc2626', pending: '#6b7280' }[s] ?? '#333');
+
+  const handleDelete = async () => {
+    if (!monthOrders || monthOrders.length === 0) return;
+    const ok = window.confirm(
+      `Monat löschen: ${monthName}\n\n${monthOrders.length} Bestellungen werden dauerhaft gelöscht.\n\n⚠️ Diese Aktion kann NICHT rückgängig gemacht werden!\n\nFortfahren?`
+    );
+    if (!ok) return;
+    setDeleting(true);
+    const ids = monthOrders.map(o => o.id);
+    const { error: err } = await supabase.from('orders').delete().in('id', ids);
+    setDeleting(false);
+    if (err) { setError('Fehler: ' + err.message); return; }
+    setDeleted(true);
+    setMonthOrders([]);
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ background: 'white', borderRadius: 16, width: '100%', maxWidth: 740, maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden' }}
+        className="no-print">
+        {/* Header */}
+        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <div style={{ fontSize: 18, fontWeight: 700 }}>📄 Monatsbericht — {monthName}</div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', lineHeight: 1 }}>✕</button>
+        </div>
+
+        {/* Body */}
+        <div style={{ overflow: 'auto', flex: 1, padding: '20px 24px' }} id="monthly-report-content">
+          {monthOrders === null ? (
+            <div style={{ textAlign: 'center', padding: 40, color: '#888' }}>⏳ Lade Bestellungen...</div>
+          ) : (
+            <>
+              {/* Stats */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
+                {[
+                  { label: 'Bestellungen', value: monthOrders.length },
+                  { label: 'Gesamtumsatz', value: fmt(total) },
+                  { label: '🏃 Abholung', value: pickup },
+                  { label: '🛵 Lieferung', value: delivery },
+                ].map(s => (
+                  <div key={s.label} style={{ background: '#f8f8f8', borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, color: '#888', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.5px' }}>{s.label}</div>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', marginTop: 4 }}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Table */}
+              {monthOrders.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 40, color: '#888' }}>Keine Bestellungen in diesem Monat</div>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ background: '#f5f5f5' }}>
+                      {['Bestellnr.', 'Datum', 'Uhrzeit', 'Typ', 'Status', 'Betrag'].map((h, i) => (
+                        <th key={h} style={{ padding: '9px 12px', textAlign: i === 5 ? 'right' : 'left', fontSize: 11, fontWeight: 700, color: '#666', textTransform: 'uppercase', letterSpacing: '.5px', borderBottom: '2px solid #eee' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {monthOrders.map(o => {
+                      const d = new Date(o.created_at);
+                      return (
+                        <tr key={o.id} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                          <td style={{ padding: '9px 12px', fontWeight: 700 }}>{o.order_number}</td>
+                          <td style={{ padding: '9px 12px' }}>{d.toLocaleDateString('de-DE')}</td>
+                          <td style={{ padding: '9px 12px' }}>{d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</td>
+                          <td style={{ padding: '9px 12px' }}>{o.order_type === 'delivery' ? '🛵 Lieferung' : '🏃 Abholung'}</td>
+                          <td style={{ padding: '9px 12px', fontWeight: 600, color: statusClr(o.status) }}>{statusLbl(o.status)}</td>
+                          <td style={{ padding: '9px 12px', textAlign: 'right', fontWeight: 700 }}>{fmt(o.total_cents)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{ background: '#f5f5f5' }}>
+                      <td colSpan={5} style={{ padding: '10px 12px', fontWeight: 700 }}>Gesamt</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700, fontSize: 15, color: '#C0392B' }}>{fmt(total)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              )}
+
+              {deleted && (
+                <div style={{ marginTop: 12, background: '#dcfce7', color: '#14532d', border: '1px solid #bbf7d0', borderRadius: 8, padding: '10px 14px', fontSize: 13, fontWeight: 600 }}>
+                  ✅ Alle Bestellungen des Monats wurden erfolgreich gelöscht.
+                </div>
+              )}
+              {error && <div style={{ marginTop: 12, color: '#c0392b', fontSize: 13, fontWeight: 600 }}>{error}</div>}
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: '16px 24px', borderTop: '1px solid #f0f0f0', display: 'flex', gap: 10, alignItems: 'center', flexShrink: 0, flexWrap: 'wrap' }}>
+          <button onClick={() => window.print()} style={{ padding: '9px 18px', background: '#1a1a1a', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+            🖨️ Drucken
+          </button>
+          {!deleted && monthOrders && monthOrders.length > 0 && (
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              style={{ padding: '9px 18px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: deleting ? .6 : 1 }}
+            >
+              {deleting ? '⏳ Wird gelöscht...' : '🗑️ Monat löschen'}
+            </button>
+          )}
+          <button onClick={onClose} style={{ marginLeft: 'auto', padding: '9px 18px', background: '#f5f5f5', color: '#555', border: '1px solid #ddd', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+            Schließen
+          </button>
+        </div>
+      </div>
+
+      {/* Print-only content */}
+      <style>{`
+        @media print {
+          body > *:not(#monthly-print-root) { display: none !important; }
+          #monthly-print-root { display: block !important; position: fixed; top: 0; left: 0; width: 100%; padding: 24px; font-family: 'Segoe UI', sans-serif; }
+        }
+        #monthly-print-root { display: none; }
+      `}</style>
+      <div id="monthly-print-root">
+        <h1 style={{ fontSize: 22, letterSpacing: 3, marginBottom: 4 }}>SMILE DÖNER</h1>
+        <p style={{ fontSize: 12, color: '#666', marginBottom: 16 }}>Monatsbericht — {monthName} · Franziskusstr. 1, 44795 Bochum</p>
+        {monthOrders && (
+          <>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 20 }}>
+              {[['Bestellungen', monthOrders.length], ['Umsatz', fmt(total)], ['Abholung', pickup], ['Lieferung', delivery]].map(([l, v]) => (
+                <div key={l as string} style={{ border: '1px solid #ddd', borderRadius: 6, padding: 10, textAlign: 'center' }}>
+                  <div style={{ fontSize: 10, color: '#888', textTransform: 'uppercase' }}>{l}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, marginTop: 2 }}>{v}</div>
+                </div>
+              ))}
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: '#f0f0f0' }}>
+                  {['Bestellnr.', 'Datum', 'Uhrzeit', 'Typ', 'Status', 'Betrag'].map((h, i) => (
+                    <th key={h} style={{ padding: '7px 10px', textAlign: i === 5 ? 'right' : 'left', fontWeight: 700, borderBottom: '2px solid #ccc' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {monthOrders.map(o => {
+                  const d = new Date(o.created_at);
+                  return (
+                    <tr key={o.id} style={{ borderBottom: '1px solid #eee' }}>
+                      <td style={{ padding: '7px 10px', fontWeight: 700 }}>{o.order_number}</td>
+                      <td style={{ padding: '7px 10px' }}>{d.toLocaleDateString('de-DE')}</td>
+                      <td style={{ padding: '7px 10px' }}>{d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</td>
+                      <td style={{ padding: '7px 10px' }}>{o.order_type === 'delivery' ? 'Lieferung' : 'Abholung'}</td>
+                      <td style={{ padding: '7px 10px' }}>{statusLbl(o.status)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: 700 }}>{fmt(o.total_cents)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr><td colSpan={5} style={{ padding: '7px 10px', fontWeight: 700 }}>Gesamt</td><td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: 700 }}>{fmt(total)}</td></tr>
+              </tfoot>
+            </table>
+            <p style={{ marginTop: 20, fontSize: 11, color: '#999', textAlign: 'center' }}>Erstellt am {new Date().toLocaleString('de-DE')} · Smile Döner Admin</p>
+          </>
+        )}
       </div>
     </div>
   );

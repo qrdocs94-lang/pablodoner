@@ -109,6 +109,47 @@ body{background:var(--color-background-tertiary)}
 
 .empty-state{text-align:center;padding:48px 20px;color:var(--color-text-secondary)}
 
+/* Monthly report modal */
+.mr-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px}
+.mr-modal-card{background:white;border-radius:16px;width:100%;max-width:740px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.3);overflow:hidden}
+.mr-modal-header{padding:20px 24px 16px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.mr-modal-title{font-size:18px;font-weight:700;color:#1a1a1a}
+.mr-modal-body{overflow-y:auto;flex:1;padding:20px 24px}
+.mr-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.mr-stat{background:#f8f8f8;border-radius:10px;padding:14px 16px;text-align:center}
+.mr-stat-label{font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.mr-stat-value{font-size:22px;font-weight:700;color:#1a1a1a;margin-top:4px}
+.mr-table{width:100%;border-collapse:collapse;font-size:13px}
+.mr-table th{background:#f5f5f5;padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #eee}
+.mr-table td{padding:9px 12px;border-bottom:1px solid #f5f5f5;color:#333}
+.mr-table tr:last-child td{border-bottom:none}
+.mr-modal-footer{padding:16px 24px;border-top:1px solid #f0f0f0;display:flex;gap:10px;align-items:center;flex-shrink:0;flex-wrap:wrap}
+.mr-btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
+.mr-btn-print{background:#1a1a1a;color:white}
+.mr-btn-print:hover{background:#333}
+.mr-btn-delete{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+.mr-btn-delete:hover{background:#fecaca}
+.mr-btn-close{background:#f5f5f5;color:#555;border:1px solid #ddd;margin-left:auto}
+.mr-btn-close:hover{background:#ebebeb}
+.mr-success{background:#dcfce7;color:#14532d;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;margin-top:8px}
+
+/* Print: only show the report, hide everything else */
+@media print {
+  body > *:not(#monthly-print-area) { display:none !important; }
+  #monthly-print-area { display:block !important; position:fixed; top:0; left:0; width:100%; padding:24px; font-family:'Segoe UI',sans-serif; }
+  #monthly-print-area h1{font-size:20px;letter-spacing:2px;margin-bottom:4px}
+  #monthly-print-area .pr-sub{font-size:12px;color:#666;margin-bottom:16px}
+  #monthly-print-area .pr-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+  #monthly-print-area .pr-stat{border:1px solid #ddd;border-radius:6px;padding:10px;text-align:center}
+  #monthly-print-area .pr-stat-l{font-size:10px;color:#888;text-transform:uppercase}
+  #monthly-print-area .pr-stat-v{font-size:18px;font-weight:700;margin-top:2px}
+  #monthly-print-area table{width:100%;border-collapse:collapse;font-size:12px}
+  #monthly-print-area th{background:#f0f0f0;padding:7px 10px;text-align:left;font-weight:700;border-bottom:2px solid #ccc}
+  #monthly-print-area td{padding:7px 10px;border-bottom:1px solid #eee}
+  #monthly-print-area .pr-footer{margin-top:20px;font-size:11px;color:#999;text-align:center}
+}
+#monthly-print-area{display:none}
+
 /* Product image thumbnail */
 .product-item-emoji img{width:100%;height:100%;object-fit:cover;border-radius:var(--border-radius-md)}
 
@@ -172,6 +213,27 @@ body{background:var(--color-background-tertiary)}
       </div>
     </div>
     <div class="main-area" id="main-area"></div>
+  </div>
+</div>
+
+<!-- Monthly report print area (hidden, shown only on print) -->
+<div id="monthly-print-area"></div>
+
+<!-- Monthly report modal -->
+<div id="monthly-modal" class="mr-modal-bg" style="display:none">
+  <div class="mr-modal-card">
+    <div class="mr-modal-header">
+      <div class="mr-modal-title" id="mr-title">📄 Monatsbericht</div>
+      <button onclick="closeMonthlyModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;line-height:1">✕</button>
+    </div>
+    <div class="mr-modal-body" id="mr-body">
+      <div style="text-align:center;padding:40px;color:#888">⏳ Lade Bestellungen...</div>
+    </div>
+    <div class="mr-modal-footer">
+      <button class="mr-btn mr-btn-print" onclick="printMonthlyReport()">🖨️ Drucken</button>
+      <button class="mr-btn mr-btn-delete" id="mr-delete-btn" onclick="deleteMonthOrders()">🗑️ Monat löschen</button>
+      <button class="mr-btn mr-btn-close" onclick="closeMonthlyModal()">Schließen</button>
+    </div>
   </div>
 </div>
 
@@ -292,6 +354,149 @@ function showPage(page,el){
   else if(page==='produkte')loadAndRenderProdukte();
 }
 
+// ── Monthly Report ────────────────────────────────────────────
+let monthlyOrders = [];
+
+async function openMonthlyReport(){
+  document.getElementById('monthly-modal').style.display = 'flex';
+  document.getElementById('mr-body').innerHTML = '<div style="text-align:center;padding:40px;color:#888">⏳ Lade Bestellungen...</div>';
+  document.getElementById('mr-delete-btn').disabled = false;
+
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  const from = new Date(y, m, 1).toISOString();
+  const to   = new Date(y, m + 1, 0, 23, 59, 59).toISOString();
+  const monthName = now.toLocaleDateString('de-DE', {month:'long', year:'numeric'});
+  document.getElementById('mr-title').textContent = `📄 Monatsbericht — ${monthName}`;
+
+  const {data, error} = await sb.from('orders')
+    .select('id,order_number,order_type,status,total_cents,created_at,customer_name')
+    .gte('created_at', from).lte('created_at', to)
+    .order('created_at', {ascending:false});
+
+  if(error){
+    document.getElementById('mr-body').innerHTML = `<div style="color:#c0392b;padding:20px">Fehler: ${error.message}</div>`;
+    return;
+  }
+  monthlyOrders = data || [];
+  renderMonthlyBody(monthName);
+}
+
+function renderMonthlyBody(monthName){
+  const os = monthlyOrders;
+  const total = os.reduce((s,o) => s + (o.total_cents||0), 0);
+  const pickup   = os.filter(o => o.order_type === 'pickup').length;
+  const delivery = os.filter(o => o.order_type === 'delivery').length;
+  const statusLabel = s => ({pending:'Ausstehend',paid:'Bezahlt',preparing:'Zubereitung',ready:'Fertig',cancelled:'Storniert'}[s]||s);
+  const statusColor = s => ({paid:'#1d4ed8',preparing:'#b45309',ready:'#15803d',cancelled:'#dc2626',pending:'#6b7280'}[s]||'#333');
+
+  document.getElementById('mr-body').innerHTML = `
+    <div class="mr-stats-row">
+      <div class="mr-stat"><div class="mr-stat-label">Bestellungen</div><div class="mr-stat-value">${os.length}</div></div>
+      <div class="mr-stat"><div class="mr-stat-label">Gesamtumsatz</div><div class="mr-stat-value">${fmt(total)}</div></div>
+      <div class="mr-stat"><div class="mr-stat-label">🏃 Abholung</div><div class="mr-stat-value">${pickup}</div></div>
+      <div class="mr-stat"><div class="mr-stat-label">🛵 Lieferung</div><div class="mr-stat-value">${delivery}</div></div>
+    </div>
+    ${os.length === 0
+      ? '<div class="empty-state">Keine Bestellungen in diesem Monat</div>'
+      : `<table class="mr-table">
+          <thead><tr>
+            <th>Bestellnr.</th><th>Datum</th><th>Uhrzeit</th><th>Typ</th><th>Status</th><th style="text-align:right">Betrag</th>
+          </tr></thead>
+          <tbody>
+            ${os.map(o => {
+              const d = new Date(o.created_at);
+              return `<tr>
+                <td style="font-weight:700">${o.order_number}</td>
+                <td>${d.toLocaleDateString('de-DE')}</td>
+                <td>${d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}</td>
+                <td>${o.order_type==='delivery'?'🛵 Lieferung':'🏃 Abholung'}</td>
+                <td><span style="color:${statusColor(o.status)};font-weight:600">${statusLabel(o.status)}</span></td>
+                <td style="text-align:right;font-weight:700">${fmt(o.total_cents||0)}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+          <tfoot>
+            <tr style="background:#f5f5f5">
+              <td colspan="5" style="padding:10px 12px;font-weight:700;font-size:13px">Gesamt</td>
+              <td style="padding:10px 12px;text-align:right;font-weight:700;font-size:15px;color:#c0392b">${fmt(total)}</td>
+            </tr>
+          </tfoot>
+        </table>`
+    }
+    <div id="mr-success-msg"></div>`;
+
+  // Build print area
+  document.getElementById('monthly-print-area').innerHTML = `
+    <h1>SMILE DÖNER</h1>
+    <div class="pr-sub">Monatsbericht — ${monthName} · Franziskusstr. 1, 44795 Bochum</div>
+    <div class="pr-stats">
+      <div class="pr-stat"><div class="pr-stat-l">Bestellungen</div><div class="pr-stat-v">${os.length}</div></div>
+      <div class="pr-stat"><div class="pr-stat-l">Umsatz</div><div class="pr-stat-v">${fmt(total)}</div></div>
+      <div class="pr-stat"><div class="pr-stat-l">Abholung</div><div class="pr-stat-v">${pickup}</div></div>
+      <div class="pr-stat"><div class="pr-stat-l">Lieferung</div><div class="pr-stat-v">${delivery}</div></div>
+    </div>
+    <table>
+      <thead><tr><th>Bestellnr.</th><th>Datum</th><th>Uhrzeit</th><th>Typ</th><th>Status</th><th style="text-align:right">Betrag</th></tr></thead>
+      <tbody>${os.map(o => {
+        const d = new Date(o.created_at);
+        return `<tr>
+          <td><b>${o.order_number}</b></td>
+          <td>${d.toLocaleDateString('de-DE')}</td>
+          <td>${d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}</td>
+          <td>${o.order_type==='delivery'?'Lieferung':'Abholung'}</td>
+          <td>${statusLabel(o.status)}</td>
+          <td style="text-align:right"><b>${fmt(o.total_cents||0)}</b></td>
+        </tr>`;
+      }).join('')}</tbody>
+      <tfoot><tr><td colspan="5"><b>Gesamt</b></td><td style="text-align:right"><b>${fmt(total)}</b></td></tr></tfoot>
+    </table>
+    <div class="pr-footer">Erstellt am ${new Date().toLocaleString('de-DE')} · Smile Döner Admin</div>`;
+}
+
+function closeMonthlyModal(){
+  document.getElementById('monthly-modal').style.display = 'none';
+  monthlyOrders = [];
+}
+
+function printMonthlyReport(){
+  window.print();
+}
+
+async function deleteMonthOrders(){
+  if(monthlyOrders.length === 0){ alert('Keine Bestellungen zum Löschen.'); return; }
+  const now = new Date();
+  const monthName = now.toLocaleDateString('de-DE', {month:'long', year:'numeric'});
+  const confirmed = confirm(
+    `Monat löschen: ${monthName}\n\n` +
+    `${monthlyOrders.length} Bestellungen werden dauerhaft aus der Datenbank gelöscht.\n\n` +
+    `⚠️ Diese Aktion kann NICHT rückgängig gemacht werden!\n\nFortfahren?`
+  );
+  if(!confirmed) return;
+
+  const btn = document.getElementById('mr-delete-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Wird gelöscht...';
+
+  const ids = monthlyOrders.map(o => o.id);
+  const {error} = await sb.from('orders').delete().in('id', ids);
+
+  if(error){
+    alert('Fehler beim Löschen: ' + error.message);
+    btn.disabled = false;
+    btn.textContent = '🗑️ Monat löschen';
+    return;
+  }
+
+  monthlyOrders = [];
+  const successEl = document.getElementById('mr-success-msg');
+  if(successEl) successEl.innerHTML = `<div class="mr-success">✅ ${ids.length} Bestellungen wurden erfolgreich gelöscht.</div>`;
+  btn.style.display = 'none';
+
+  // Reload dashboard stats
+  renderDashboard(document.getElementById('main-area'));
+}
+
 function renderDashboard(el){
   const todayOrders=orders.length;
   const revenue=orders.reduce((s,o)=>s+o.total,0);
@@ -299,8 +504,8 @@ function renderDashboard(el){
   const preparing=orders.filter(o=>o.status==='preparing').length;
   el.innerHTML=`
   <div class="page-header">
-    <div><div class="page-title">Dashboard</div><div class="page-sub">Übersicht — 02.04.2026</div></div>
-    <div style="font-size:13px;color:var(--color-text-secondary)">Di–Do 10–22 Uhr</div>
+    <div><div class="page-title">Dashboard</div><div class="page-sub">Übersicht — ${new Date().toLocaleDateString('de-DE')}</div></div>
+    <button class="act-btn" onclick="openMonthlyReport()" style="background:#1a1a1a;color:white;border-color:#1a1a1a;font-size:13px;padding:8px 16px">📄 Monatsbericht</button>
   </div>
   <div class="content">
     <div class="stats-grid">
