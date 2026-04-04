@@ -115,12 +115,17 @@ export async function fetchAllProductsAdmin(): Promise<Product[]> {
 }
 
 // ── Admin: upload product image to Storage ─────────────────────
-export async function uploadProductImage(file: File): Promise<string> {
-  const ext = file.name.split(".").pop() ?? "jpg";
-  const fileName = `${crypto.randomUUID()}.${ext}`;
+export async function uploadProductImage(file: File, productId?: string): Promise<string> {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const prefix = productId ?? crypto.randomUUID();
+  const fileName = `${prefix}-${Date.now()}.${ext}`;
+
+  // Ensure bucket exists (no-op if already present)
+  await supabase.storage.createBucket("product-images", { public: true }).catch(() => {});
+
   const { error } = await supabase.storage
     .from("product-images")
-    .upload(fileName, file, { upsert: false, contentType: file.type });
+    .upload(fileName, file, { upsert: true, contentType: file.type });
   if (error) throw error;
   const { data } = supabase.storage.from("product-images").getPublicUrl(fileName);
   return data.publicUrl;

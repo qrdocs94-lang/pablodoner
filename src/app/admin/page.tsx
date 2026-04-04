@@ -835,7 +835,7 @@ function ProdukteTab({ products, categories, onRefresh }: {
     setError('');
     try {
       let image_url: string | null = null;
-      if (addImageFile) image_url = await uploadProductImage(addImageFile);
+      if (addImageFile) image_url = await uploadProductImage(addImageFile, undefined);
       await createProduct({ category_id: form.category_id, name: form.name.trim(), description: form.description.trim(), price_cents: priceCents, image_url });
       resetForm();
       setShowAddForm(false);
@@ -853,7 +853,7 @@ function ProdukteTab({ products, categories, onRefresh }: {
     setError('');
     try {
       let image_url = editProduct.image_url;
-      if (editImageFile) image_url = await uploadProductImage(editImageFile);
+      if (editImageFile) image_url = await uploadProductImage(editImageFile, editProduct.id);
       await updateProduct(editProduct.id, {
         name: editProduct.name,
         description: editProduct.description,
@@ -920,14 +920,24 @@ function ProdukteTab({ products, categories, onRefresh }: {
                 <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Kurze Beschreibung (optional)" style={inputStyle} />
               </FormField>
             </div>
-            <FormField label="Produktbild (optional)">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                {addImagePreview && (
-                  <img src={addImagePreview} alt="Vorschau" style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee', flexShrink: 0 }} />
-                )}
-                <input type="file" accept="image/*" onChange={handleAddImageChange} style={{ fontSize: 13 }} />
+            {/* Image upload — prominent section */}
+            <div style={{ background: '#f8f9fa', border: '1.5px dashed #dee2e6', borderRadius: 10, padding: 16, marginBottom: 12 }}>
+              <div style={{ fontSize: 12, color: '#555', fontWeight: 700, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '.5px' }}>🖼️ Produktbild (optional)</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ width: 72, height: 72, borderRadius: 10, border: '1px solid #dee2e6', overflow: 'hidden', background: 'white', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {addImagePreview
+                    ? <img src={addImagePreview} alt="Vorschau" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : <span style={{ fontSize: 26 }}>🖼️</span>
+                  }
+                </div>
+                <div style={{ flex: 1 }}>
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAddImageChange} style={{ fontSize: 13, width: '100%' }} />
+                  <div style={{ fontSize: 11, color: '#888', marginTop: 6 }}>
+                    {addImageFile ? `✅ ${addImageFile.name}` : 'JPG, PNG oder WEBP · wird in Supabase Storage gespeichert'}
+                  </div>
+                </div>
               </div>
-            </FormField>
+            </div>
             {error && <p style={{ color: '#C0392B', fontSize: 13, marginBottom: 8, marginTop: 8 }}>{error}</p>}
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
               <button onClick={() => { setShowAddForm(false); resetForm(); setError(''); }} style={{ padding: '8px 16px', border: '1px solid #ddd', borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13 }}>Abbrechen</button>
@@ -940,57 +950,71 @@ function ProdukteTab({ products, categories, onRefresh }: {
 
         {/* Edit modal */}
         {editProduct && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: 'white', borderRadius: 16, padding: 24, width: 480, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>Produkt bearbeiten</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-                <FormField label="Produktname">
-                  <input value={editProduct.name} onChange={e => setEditProduct(p => p ? { ...p, name: e.target.value } : p)} style={inputStyle} />
-                </FormField>
-                <FormField label="Kategorie">
-                  <select value={editProduct.category_id} onChange={e => setEditProduct(p => p ? { ...p, category_id: e.target.value } : p)} style={inputStyle}>
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                </FormField>
-                <FormField label="Preis (Cent)">
-                  <input
-                    type="number"
-                    value={editProduct.price_cents}
-                    onChange={e => setEditProduct(p => p ? { ...p, price_cents: parseInt(e.target.value) || 0 } : p)}
-                    style={inputStyle}
-                  />
-                  <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>= {fmt(editProduct.price_cents)} (Eingabe in Cent, z.B. 800 = 8,00 €)</div>
-                </FormField>
-                <FormField label="Beschreibung">
-                  <input value={editProduct.description ?? ''} onChange={e => setEditProduct(p => p ? { ...p, description: e.target.value } : p)} style={inputStyle} />
-                </FormField>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+            <div style={{ background: 'white', borderRadius: 16, width: '100%', maxWidth: 520, maxHeight: '92vh', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+              {/* Header */}
+              <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #f0f0f0', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>Produkt bearbeiten</div>
+                <button onClick={() => { setEditProduct(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', lineHeight: 1 }}>✕</button>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                <input type="checkbox" id="is_active" checked={editProduct.is_active} onChange={e => setEditProduct(p => p ? { ...p, is_active: e.target.checked } : p)} />
-                <label htmlFor="is_active" style={{ fontSize: 13, fontWeight: 500 }}>Aktiv (im Bestellmenü sichtbar)</label>
-              </div>
-              <FormField label="Produktbild">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  {(editImagePreview ?? editProduct.image_url) && (
-                    <img
-                      src={editImagePreview ?? editProduct.image_url!}
-                      alt="Vorschau"
-                      style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee', flexShrink: 0 }}
+
+              {/* Scrollable body */}
+              <div style={{ overflowY: 'auto', flex: 1, padding: '20px 24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                  <FormField label="Produktname">
+                    <input value={editProduct.name} onChange={e => setEditProduct(p => p ? { ...p, name: e.target.value } : p)} style={inputStyle} />
+                  </FormField>
+                  <FormField label="Kategorie">
+                    <select value={editProduct.category_id} onChange={e => setEditProduct(p => p ? { ...p, category_id: e.target.value } : p)} style={inputStyle}>
+                      {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </FormField>
+                  <FormField label="Preis (Cent)">
+                    <input
+                      type="number"
+                      value={editProduct.price_cents}
+                      onChange={e => setEditProduct(p => p ? { ...p, price_cents: parseInt(e.target.value) || 0 } : p)}
+                      style={inputStyle}
                     />
-                  )}
-                  <div>
-                    <input type="file" accept="image/*" onChange={handleEditImageChange} style={{ fontSize: 13 }} />
-                    {editProduct.image_url && !editImageFile && (
-                      <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>Aktuelles Bild vorhanden. Neues Bild hochladen zum Ersetzen.</div>
-                    )}
+                    <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>= {fmt(editProduct.price_cents)} (z.B. 800 = 8,00 €)</div>
+                  </FormField>
+                  <FormField label="Beschreibung">
+                    <input value={editProduct.description ?? ''} onChange={e => setEditProduct(p => p ? { ...p, description: e.target.value } : p)} style={inputStyle} />
+                  </FormField>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                  <input type="checkbox" id="is_active_edit" checked={editProduct.is_active} onChange={e => setEditProduct(p => p ? { ...p, is_active: e.target.checked } : p)} />
+                  <label htmlFor="is_active_edit" style={{ fontSize: 13, fontWeight: 500 }}>Aktiv (im Bestellmenü sichtbar)</label>
+                </div>
+
+                {/* Image upload — prominent section */}
+                <div style={{ background: '#f8f9fa', border: '1.5px dashed #dee2e6', borderRadius: 10, padding: 16 }}>
+                  <div style={{ fontSize: 12, color: '#555', fontWeight: 700, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '.5px' }}>🖼️ Produktbild</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{ width: 80, height: 80, borderRadius: 10, border: '1px solid #dee2e6', overflow: 'hidden', background: 'white', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {(editImagePreview ?? editProduct.image_url)
+                        ? <img src={editImagePreview ?? editProduct.image_url!} alt="Vorschau" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : <span style={{ fontSize: 28 }}>🖼️</span>
+                      }
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleEditImageChange} style={{ fontSize: 13, width: '100%' }} />
+                      <div style={{ fontSize: 11, color: '#888', marginTop: 6 }}>
+                        {editImageFile ? `✅ ${editImageFile.name}` : editProduct.image_url ? '✅ Aktuelles Bild vorhanden — neues hochladen zum Ersetzen' : 'JPG, PNG oder WEBP · wird in Supabase Storage gespeichert'}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </FormField>
-              {error && <p style={{ color: '#C0392B', fontSize: 13, marginBottom: 8, marginTop: 8 }}>{error}</p>}
-              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
-                <button onClick={() => { setEditProduct(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ padding: '8px 16px', border: '1px solid #ddd', borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13 }}>Abbrechen</button>
-                <button onClick={handleSaveEdit} disabled={saving} style={{ padding: '8px 16px', background: '#C0392B', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                  {saving ? 'Speichern...' : '✓ Speichern'}
+
+                {error && <p style={{ color: '#C0392B', fontSize: 13, marginTop: 12, fontWeight: 600 }}>{error}</p>}
+              </div>
+
+              {/* Footer */}
+              <div style={{ padding: '16px 24px', borderTop: '1px solid #f0f0f0', display: 'flex', gap: 8, justifyContent: 'flex-end', flexShrink: 0 }}>
+                <button onClick={() => { setEditProduct(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ padding: '9px 18px', border: '1px solid #ddd', borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13 }}>Abbrechen</button>
+                <button onClick={handleSaveEdit} disabled={saving} style={{ padding: '9px 18px', background: '#C0392B', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: saving ? .6 : 1 }}>
+                  {saving ? '⏳ Speichern...' : '✓ Speichern'}
                 </button>
               </div>
             </div>

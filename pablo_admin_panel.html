@@ -255,12 +255,17 @@ body{background:var(--color-background-tertiary)}
       </div>
       <div class="modal-field full"><label>Beschreibung</label><input type="text" id="m-desc" placeholder="Kurze Beschreibung (optional)"></div>
       <div class="modal-field full">
-        <label>Produktbild</label>
-        <div class="img-upload-row">
-          <img id="m-img-preview" class="img-preview" src="" alt="" style="display:none">
-          <div>
-            <input type="file" id="m-img-file" accept="image/*" onchange="handleModalImageChange()">
-            <div class="img-hint" id="m-img-hint"></div>
+        <div style="background:#f8f9fa;border:1.5px dashed #dee2e6;border-radius:10px;padding:14px;margin-top:4px">
+          <div style="font-size:12px;color:#555;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">🖼️ Produktbild</div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:80px;height:80px;border-radius:10px;border:1px solid #dee2e6;overflow:hidden;background:white;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:28px">
+              <img id="m-img-preview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover">
+              <span id="m-img-placeholder">🖼️</span>
+            </div>
+            <div style="flex:1">
+              <input type="file" id="m-img-file" accept="image/jpeg,image/png,image/webp" onchange="handleModalImageChange()" style="width:100%;font-size:13px">
+              <div class="img-hint" id="m-img-hint" style="margin-top:6px">JPG, PNG oder WEBP · wird in Supabase Storage gespeichert</div>
+            </div>
           </div>
         </div>
       </div>
@@ -670,7 +675,8 @@ function openAddModal(){
   document.getElementById('m-active').value = '1';
   document.getElementById('m-img-file').value = '';
   document.getElementById('m-img-preview').style.display = 'none';
-  document.getElementById('m-img-hint').textContent = '';
+  const ph1 = document.getElementById('m-img-placeholder'); if(ph1) ph1.style.display = '';
+  document.getElementById('m-img-hint').textContent = 'JPG, PNG oder WEBP · wird in Supabase Storage gespeichert';
   document.getElementById('modal-error').textContent = '';
   document.getElementById('modal-uploading').style.display = 'none';
   document.getElementById('product-modal').style.display = 'flex';
@@ -690,8 +696,16 @@ function openEditModal(id){
   document.getElementById('modal-error').textContent = '';
   document.getElementById('modal-uploading').style.display = 'none';
   const preview = document.getElementById('m-img-preview');
-  if(p.image_url){ preview.src = p.image_url; preview.style.display = 'block'; document.getElementById('m-img-hint').textContent = 'Aktuelles Bild. Neues hochladen zum Ersetzen.'; }
-  else { preview.style.display = 'none'; document.getElementById('m-img-hint').textContent = ''; }
+  const ph = document.getElementById('m-img-placeholder');
+  if(p.image_url){
+    preview.src = p.image_url; preview.style.display = 'block';
+    if(ph) ph.style.display = 'none';
+    document.getElementById('m-img-hint').textContent = '✅ Aktuelles Bild vorhanden — neues hochladen zum Ersetzen';
+  } else {
+    preview.style.display = 'none';
+    if(ph) ph.style.display = '';
+    document.getElementById('m-img-hint').textContent = 'JPG, PNG oder WEBP · wird in Supabase Storage gespeichert';
+  }
   document.getElementById('product-modal').style.display = 'flex';
 }
 
@@ -704,9 +718,11 @@ function handleModalImageChange(){
   const file = document.getElementById('m-img-file').files[0];
   if(!file) return;
   const preview = document.getElementById('m-img-preview');
+  const placeholder = document.getElementById('m-img-placeholder');
   preview.src = URL.createObjectURL(file);
   preview.style.display = 'block';
-  document.getElementById('m-img-hint').textContent = file.name;
+  if(placeholder) placeholder.style.display = 'none';
+  document.getElementById('m-img-hint').textContent = '✅ ' + file.name;
 }
 
 async function saveProductModal(){
@@ -731,9 +747,12 @@ async function saveProductModal(){
   const imgFile = document.getElementById('m-img-file').files[0];
   if(imgFile){
     document.getElementById('modal-uploading').style.display = 'block';
-    const ext = imgFile.name.split('.').pop();
-    const fileName = crypto.randomUUID() + '.' + ext;
-    const {error: upErr} = await sb.storage.from('product-images').upload(fileName, imgFile, {contentType: imgFile.type});
+    // Ensure bucket exists (no-op if already present)
+    await sb.storage.createBucket('product-images', {public: true}).catch(()=>{});
+    const ext = (imgFile.name.split('.').pop() || 'jpg').toLowerCase();
+    const idPart = modalEditId || crypto.randomUUID();
+    const fileName = idPart + '-' + Date.now() + '.' + ext;
+    const {error: upErr} = await sb.storage.from('product-images').upload(fileName, imgFile, {upsert: true, contentType: imgFile.type});
     if(upErr){ errEl.textContent = 'Bild-Upload fehlgeschlagen: ' + upErr.message; saveBtn.disabled=false; document.getElementById('modal-uploading').style.display='none'; return; }
     const {data: urlData} = sb.storage.from('product-images').getPublicUrl(fileName);
     image_url = urlData.publicUrl;
