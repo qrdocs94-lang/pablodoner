@@ -120,9 +120,6 @@ export async function uploadProductImage(file: File, productId?: string): Promis
   const prefix = productId ?? crypto.randomUUID();
   const fileName = `${prefix}-${Date.now()}.${ext}`;
 
-  // Ensure bucket exists (no-op if already present)
-  await supabase.storage.createBucket("product-images", { public: true }).catch(() => {});
-
   const { error } = await supabase.storage
     .from("product-images")
     .upload(fileName, file, { upsert: true, contentType: file.type });
