@@ -302,6 +302,21 @@ export default function TerminalPage() {
         />
       )}
     </div>
+      {/* FOOTER */}
+      <footer style={{ background: "#1a1a1a", color: "rgba(255,255,255,0.6)", padding: "20px", textAlign: "center", fontSize: 12 }}>
+        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <div style={{ fontWeight: 700, color: "white", marginBottom: 6, fontSize: 14 }}>🌯 Smile Döner Bochum</div>
+          <div style={{ marginBottom: 8 }}>Franziskusstr. 1, 44795 Bochum · pablodoner7@gmail.com</div>
+          <div style={{ display: "flex", gap: 20, justifyContent: "center", marginBottom: 12 }}>
+            <a href="/impressum" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none" }}>Impressum</a>
+            <a href="/datenschutz" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none" }}>Datenschutz</a>
+          </div>
+          {/* Hidden Admin Button */}
+          <div style={{ marginTop: 8 }}>
+            <a href="/admin" style={{ color: "rgba(255,255,255,0.1)", fontSize: 10, textDecoration: "none" }}>●</a>
+          </div>
+        </div>
+      </footer>
   );
 }
 
