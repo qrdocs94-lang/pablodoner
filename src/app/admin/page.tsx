@@ -111,6 +111,8 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
 
   useEffect(() => {
     loadData();
+    const interval = setInterval(loadData, 3000);
+    return () => clearInterval(interval);
   }, [loadData]);
 
   const navItems: { id: AdminPage; icon: string; label: string }[] = [
