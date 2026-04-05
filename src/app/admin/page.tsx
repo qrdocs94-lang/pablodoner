@@ -952,26 +952,6 @@ function ProdukteTab({ products, categories, onRefresh }: {
                 <div style={{ fontSize: 16, fontWeight: 700 }}>Produkt bearbeiten ✏️</div>
                 <button onClick={() => { setEditProduct(null); setImageFile(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', lineHeight: 1 }}>✕</button>
               </div>
-              {/* ── BILD UPLOAD ── */}
-              <div style={{ marginBottom: 16, padding: 14, border: "1.5px dashed #dee2e6", borderRadius: 10, background: "#f8f9fa" }}>
-                <div style={{ fontSize: 12, color: "#555", fontWeight: 700, marginBottom: 10, textTransform: "uppercase", letterSpacing: ".5px" }}>🖼️ Produktbild</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                  <div style={{ width: 72, height: 72, borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", background: "white", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {imageFile
-                      ? <img src={URL.createObjectURL(imageFile)} alt="Vorschau" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      : editProduct.image_url
-                        ? <img src={editProduct.image_url} alt="Aktuell" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        : <span style={{ fontSize: 26 }}>🖼️</span>
-                    }
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <input type="file" accept="image/jpeg,image/png,image/webp" style={{ fontSize: 13, width: "100%" }} onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
-                    <div style={{ fontSize: 11, color: "#888", marginTop: 6 }}>
-                      {imageFile ? `✅ ${imageFile.name}` : editProduct.image_url ? "✅ Bild vorhanden — neues hochladen zum Ersetzen" : "JPG, PNG oder WEBP — optional"}
-                    </div>
-                  </div>
-                </div>
-              </div>
               {/* Fields */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
                 <FormField label="Produktname">
@@ -998,6 +978,26 @@ function ProdukteTab({ products, categories, onRefresh }: {
 
               {error && <p style={{ color: '#C0392B', fontSize: 13, marginBottom: 12, fontWeight: 600 }}>{error}</p>}
 
+              {/* ── BILD UPLOAD ── */}
+              <div style={{ marginBottom: 16, padding: 14, border: "1.5px dashed #dee2e6", borderRadius: 10, background: "#f8f9fa" }}>
+                <div style={{ fontSize: 12, color: "#555", fontWeight: 700, marginBottom: 10, textTransform: "uppercase", letterSpacing: ".5px" }}>🖼️ Produktbild</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{ width: 72, height: 72, borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", background: "white", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {imageFile
+                      ? <img src={URL.createObjectURL(imageFile)} alt="Vorschau" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      : editProduct.image_url
+                        ? <img src={editProduct.image_url} alt="Aktuell" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        : <span style={{ fontSize: 26 }}>🖼️</span>
+                    }
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" style={{ fontSize: 13, width: "100%" }} onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
+                    <div style={{ fontSize: 11, color: "#888", marginTop: 6 }}>
+                      {imageFile ? `✅ ${imageFile.name}` : editProduct.image_url ? "✅ Bild vorhanden — neues hochladen zum Ersetzen" : "JPG, PNG oder WEBP — optional"}
+                    </div>
+                  </div>
+                </div>
+              </div>
               {/* Footer buttons */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                 <button onClick={() => { setEditProduct(null); setImageFile(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ padding: '9px 18px', border: '1px solid #ddd', borderRadius: 8, background: 'none', cursor: 'pointer', fontSize: 13 }}>Abbrechen</button>
