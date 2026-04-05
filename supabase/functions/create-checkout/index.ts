@@ -66,7 +66,7 @@ serve(async (req: Request) => {
 
     // ── 2. Validate prices from DB (SECURITY CRITICAL) ───────
     // Never trust frontend prices — always load from DB
-    const productIds = items.map((i) => i.product_id);
+    const productIds = [...new Set(items.map((i) => i.product_id))];
     const { data: dbProducts, error: dbErr } = await supabase
       .from("products")
       .select("id, name, price_cents, is_active")
@@ -212,3 +212,4 @@ function error(status: number, message: string) {
     status,
   });
 }
+
