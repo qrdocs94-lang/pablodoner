@@ -953,7 +953,6 @@ function ProdukteTab({ products, categories, onRefresh }: {
                 <button onClick={() => { setEditProduct(null); setImageFile(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', lineHeight: 1 }}>✕</button>
               </div>
               {/* ── BILD UPLOAD ── */}
-              {/* ── BILD UPLOAD ── */
               <div style={{ marginBottom: 16, padding: 14, border: "1.5px dashed #dee2e6", borderRadius: 10, background: "#f8f9fa" }}>
                 <div style={{ fontSize: 12, color: "#555", fontWeight: 700, marginBottom: 10, textTransform: "uppercase", letterSpacing: ".5px" }}>🖼️ Produktbild</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
