@@ -953,23 +953,26 @@ function ProdukteTab({ products, categories, onRefresh }: {
                 <button onClick={() => { setEditProduct(null); setImageFile(null); setEditImageFile(null); setEditImagePreview(null); setError(''); }} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', lineHeight: 1 }}>✕</button>
               </div>
 
-              <div style={{background:'lime', padding:8, fontWeight:900}}>VERSION 2 - BILD UPLOAD AKTIV</div>
-
-              {/* ── BILD UPLOAD — ganz oben, immer sichtbar ── */}
-              <div style={{ marginBottom: 16, padding: 14, border: '3px dashed #C0392B', borderRadius: 10, background: '#fff0ee' }}>
-                <div style={{ fontWeight: 800, fontSize: 14, color: '#C0392B', marginBottom: 10 }}>📷 Produktbild hochladen</div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'block', width: '100%', fontSize: 14, padding: '4px 0' }}
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                />
-                {imageFile
-                  ? <div style={{ marginTop: 8, color: '#1a7a1a', fontWeight: 700, fontSize: 13 }}>✅ {imageFile.name}</div>
-                  : <div style={{ marginTop: 6, color: '#999', fontSize: 12 }}>JPG, PNG oder WEBP — optional</div>
-                }
+              {/* ── BILD UPLOAD ── */
+              <div style={{ marginBottom: 16, padding: 14, border: "1.5px dashed #dee2e6", borderRadius: 10, background: "#f8f9fa" }}>
+                <div style={{ fontSize: 12, color: "#555", fontWeight: 700, marginBottom: 10, textTransform: "uppercase", letterSpacing: ".5px" }}>🖼️ Produktbild</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{ width: 72, height: 72, borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", background: "white", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {imageFile
+                      ? <img src={URL.createObjectURL(imageFile)} alt="Vorschau" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      : editProduct.image_url
+                        ? <img src={editProduct.image_url} alt="Aktuell" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        : <span style={{ fontSize: 26 }}>🖼️</span>
+                    }
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" style={{ fontSize: 13, width: "100%" }} onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
+                    <div style={{ fontSize: 11, color: "#888", marginTop: 6 }}>
+                      {imageFile ? `✅ ${imageFile.name}` : editProduct.image_url ? "✅ Bild vorhanden — neues hochladen zum Ersetzen" : "JPG, PNG oder WEBP — optional"}
+                    </div>
+                  </div>
+                </div>
               </div>
-
               {/* Fields */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
                 <FormField label="Produktname">
@@ -1091,3 +1094,4 @@ const inputStyle: React.CSSProperties = {
 
 
  
+

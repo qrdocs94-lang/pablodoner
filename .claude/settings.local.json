@@ -15,7 +15,9 @@
       "Bash(grep -rn \"Pablo Döner\\\\|Pablo Doner\\\\|PABLO DÖNER\" /c/pablo/pablo-terminal/src /c/pablo/pablo-terminal/supabase /c/pablo/pablo-terminal/*.md /c/pablo/pablo-terminal/*.json)",
       "Bash(ls:*)",
       "Bash(npm run:*)",
-      "Bash(curl -s http://localhost:3000/admin)"
+      "Bash(curl -s http://localhost:3000/admin)",
+      "Bash(npm install:*)",
+      "Bash(vercel:*)"
     ]
   }
 }
