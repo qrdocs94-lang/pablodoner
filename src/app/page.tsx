@@ -301,7 +301,6 @@ export default function TerminalPage() {
           isCheckingOut={isCheckingOut}
         />
       )}
-    </div>
       {/* FOOTER */}
       <footer style={{ background: "#1a1a1a", color: "rgba(255,255,255,0.6)", padding: "20px", textAlign: "center", fontSize: 12 }}>
         <div style={{ maxWidth: 600, margin: "0 auto" }}>
@@ -317,6 +316,7 @@ export default function TerminalPage() {
           </div>
         </div>
       </footer>
+    </div>
   );
 }
 
