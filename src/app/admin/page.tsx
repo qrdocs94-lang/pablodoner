@@ -105,7 +105,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
       setProducts(prods);
       setCategories(cats);
     } finally {
-      setLoading(false);
+      if (initialLoad) setLoading(false);
     }
   }, []);
 
