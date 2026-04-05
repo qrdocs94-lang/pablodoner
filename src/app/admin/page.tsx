@@ -93,8 +93,8 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
+  const loadData = useCallback(async (initialLoad = false) => {
+    if (initialLoad) setLoading(true);
     try {
       const [ords, prods, cats] = await Promise.all([
         fetchAllOrdersAdmin(),
@@ -110,8 +110,8 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
   }, []);
 
   useEffect(() => {
-    loadData();
-    const interval = setInterval(loadData, 3000);
+    loadData(true);
+    const interval = setInterval(() => loadData(false), 3000);
     return () => clearInterval(interval);
   }, [loadData]);
 
