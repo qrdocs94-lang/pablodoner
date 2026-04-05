@@ -99,6 +99,7 @@ export async function fetchAllOrdersAdmin(): Promise<Order[]> {
   const { data, error } = await supabase
     .from("orders")
     .select("*")
+    .neq("status", "pending")
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
