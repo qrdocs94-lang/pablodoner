@@ -150,7 +150,7 @@ export default function TerminalPage() {
       <header style={{ background: '#C0392B', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.25)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
           {/* Logo */}
-          <img src="/smile_doener_logo_gold_v3.svg" alt="Smile Döner" style={{ height: 50, width: 'auto' }} />
+          <img src="/PHOTO-2026-04-10-14-31-43.jpg" alt="Smile Döner" style={{ height: 48, width: 48, borderRadius: '50%', objectFit: 'cover' }} />
 
           {/* Mode Toggle */}
           <div style={{ display: 'flex', gap: 6, background: 'rgba(0,0,0,0.2)', padding: 4, borderRadius: 10 }}>
