@@ -131,31 +131,31 @@ export default function TerminalPage() {
   const cartTotal = mounted ? totalFormatted() : '0,00 €';
 
   return (
-    <div style={{ background: '#FFF8F0', minHeight: '100vh', paddingBottom: cartItemCount > 0 ? 90 : 0 }}>
+    <div style={{ background: '#0a0a0a', minHeight: '100vh', paddingBottom: cartItemCount > 0 ? 90 : 0 }}>
 
       {/* INFO BAR */}
-      <div style={{ background: '#1A1A1A', color: 'white', textAlign: 'center', padding: '10px 20px', fontSize: 13, fontWeight: 600 }}>
+      <div style={{ background: 'rgba(0,0,0,0.7)', borderBottom: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.75)', textAlign: 'center', padding: '10px 20px', fontSize: 13, fontWeight: 600 }}>
         📍 Franziskusstr. 1, 44795 Bochum &nbsp;|&nbsp;
         <span style={{ color: '#F39C12' }}>Di–Do 10–22 Uhr &bull; Fr–So 12–00 Uhr</span>
       </div>
 
       {/* HEADER */}
-      <header style={{ background: '#C0392B', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.25)' }}>
+      <header style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 4px 30px rgba(0,0,0,0.5)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
           {/* Logo */}
-          <img src="/PHOTO-2026-04-10-14-31-43.jpg" alt="Smile Döner" style={{ height: 48, width: 48, borderRadius: '50%', objectFit: 'cover' }} />
+          <img src="/PHOTO-2026-04-10-14-31-43.jpg" alt="Smile Döner" style={{ height: 48, width: 48, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.15)' }} />
 
           {/* Mode Toggle */}
-          <div style={{ display: 'flex', gap: 6, background: 'rgba(0,0,0,0.2)', padding: 4, borderRadius: 10 }}>
+          <div style={{ display: 'flex', gap: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', padding: 4, borderRadius: 10 }}>
             <button
               onClick={() => setOrderType('pickup')}
-              style={{ padding: '6px 14px', borderRadius: 7, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13, background: orderType === 'pickup' ? 'white' : 'transparent', color: orderType === 'pickup' ? '#C0392B' : 'rgba(255,255,255,0.7)', transition: 'all 0.2s' }}
+              style={{ padding: '6px 14px', borderRadius: 7, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13, background: orderType === 'pickup' ? 'rgba(255,255,255,0.15)' : 'transparent', color: orderType === 'pickup' ? '#ffffff' : 'rgba(255,255,255,0.5)', transition: 'all 0.2s' }}
             >
               🏃 Abholen
             </button>
             <button
               onClick={() => setOrderType('delivery')}
-              style={{ padding: '6px 14px', borderRadius: 7, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13, background: orderType === 'delivery' ? 'white' : 'transparent', color: orderType === 'delivery' ? '#C0392B' : 'rgba(255,255,255,0.7)', transition: 'all 0.2s' }}
+              style={{ padding: '6px 14px', borderRadius: 7, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13, background: orderType === 'delivery' ? 'rgba(255,255,255,0.15)' : 'transparent', color: orderType === 'delivery' ? '#ffffff' : 'rgba(255,255,255,0.5)', transition: 'all 0.2s' }}
             >
               🛵 Lieferung
             </button>
@@ -167,7 +167,7 @@ export default function TerminalPage() {
             <style>{`.phone-text { display: none; } @media (min-width: 640px) { .phone-text { display: inline; } }`}</style>
             <a
               href="tel:02345798533"
-              style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, padding: '8px 12px', color: 'white', textDecoration: 'none', fontWeight: 800, fontSize: 14, transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, padding: '8px 12px', color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: 800, fontSize: 14, transition: 'all 0.2s', whiteSpace: 'nowrap' }}
             >
               📞 <span className="phone-text">02345 798533</span>
             </a>
@@ -175,11 +175,11 @@ export default function TerminalPage() {
             {/* Cart Button */}
             <button
               onClick={() => setCartOpen(true)}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#F39C12', border: 'none', borderRadius: 10, padding: '8px 16px', cursor: 'pointer', fontWeight: 900, fontSize: 15, color: '#1A1A1A', transition: 'all 0.2s', position: 'relative' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#C0392B', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, padding: '8px 16px', cursor: 'pointer', fontWeight: 900, fontSize: 15, color: 'white', transition: 'all 0.2s', position: 'relative', backdropFilter: 'blur(8px)' }}
             >
               🛒 {cartTotal}
               {cartItemCount > 0 && (
-                <span style={{ position: 'absolute', top: -6, right: -6, background: '#96281B', color: 'white', borderRadius: '50%', width: 20, height: 20, fontSize: 11, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}>
+                <span style={{ position: 'absolute', top: -6, right: -6, background: '#F39C12', color: '#1A1A1A', borderRadius: '50%', width: 20, height: 20, fontSize: 11, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #0a0a0a' }}>
                   {cartItemCount}
                 </span>
               )}
@@ -188,17 +188,18 @@ export default function TerminalPage() {
         </div>
 
         {/* Category Nav */}
-        <div style={{ background: 'rgba(0,0,0,0.15)', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ background: 'rgba(0,0,0,0.3)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div style={{ maxWidth: 1100, margin: '0 auto', padding: '10px 20px', display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none' }}>
             {productsByCategory.map(({ category, idx }) => (
               <button
                 key={category.id}
                 onClick={() => scrollToSection(idx)}
                 style={{
-                  padding: '7px 16px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                  padding: '7px 16px', borderRadius: 20, cursor: 'pointer',
                   fontWeight: 800, fontSize: 13, whiteSpace: 'nowrap',
-                  background: activeSection === idx ? '#F39C12' : 'rgba(255,255,255,0.15)',
-                  color: activeSection === idx ? '#1A1A1A' : 'white',
+                  background: activeSection === idx ? '#F39C12' : 'rgba(255,255,255,0.06)',
+                  border: activeSection === idx ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(255,255,255,0.08)',
+                  color: activeSection === idx ? '#1A1A1A' : 'rgba(255,255,255,0.75)',
                   transition: 'all 0.2s',
                 }}
               >
@@ -214,9 +215,9 @@ export default function TerminalPage() {
 
       {/* ERROR */}
       {error && (
-        <div style={{ background: '#FEE2E2', borderBottom: '1px solid #FECACA', padding: '12px 24px', display: 'flex', alignItems: 'center', gap: 8, color: '#991B1B' }}>
+        <div style={{ background: 'rgba(192,57,43,0.15)', border: '1px solid rgba(192,57,43,0.3)', padding: '12px 24px', display: 'flex', alignItems: 'center', gap: 8, color: '#ff6b6b' }}>
           ⚠️ {error}
-          <button onClick={() => setError(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#991B1B' }}>✕</button>
+          <button onClick={() => setError(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#ff6b6b' }}>✕</button>
         </div>
       )}
 
@@ -224,10 +225,10 @@ export default function TerminalPage() {
       <main style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px 40px' }}>
         {productsByCategory.map(({ category, products, idx }) => (
           <div key={category.id} id={`section-${idx}`} style={{ marginBottom: 40 }}>
-            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 30, color: '#C0392B', letterSpacing: 2, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 30, color: '#ffffff', letterSpacing: 2, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 10 }}>
               {categoryEmojis[category.name] ?? '🌯'} {category.name.toUpperCase()}
             </div>
-            <div style={{ height: 3, background: '#C0392B', borderRadius: 2, marginBottom: 20, opacity: 0.15 }} />
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 2, marginBottom: 20 }} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 14 }}>
               {products.map((product, i) => (
                 <ProductCard
@@ -242,7 +243,7 @@ export default function TerminalPage() {
         ))}
 
         {productsByCategory.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '80px 20px', color: '#888' }}>
+          <div style={{ textAlign: 'center', padding: '80px 20px', color: 'rgba(255,255,255,0.4)' }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>🌯</div>
             <p style={{ fontWeight: 700, fontSize: 18 }}>Menü wird geladen...</p>
           </div>
@@ -255,19 +256,20 @@ export default function TerminalPage() {
           onClick={() => setCartOpen(true)}
           style={{
             position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 99,
-            background: 'white', borderTop: '2px solid #f0f0f0',
+            background: 'rgba(10,10,10,0.9)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            borderTop: '1px solid rgba(255,255,255,0.1)',
             padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            boxShadow: '0 -4px 24px rgba(0,0,0,0.1)', cursor: 'pointer',
+            boxShadow: '0 -4px 30px rgba(0,0,0,0.5)', cursor: 'pointer',
           }}
         >
           <div>
-            <div style={{ fontSize: 13, color: '#888', fontWeight: 700 }}>{cartItemCount} Artikel im Warenkorb</div>
-            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, color: '#1A1A1A' }}>{cartTotal}</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>{cartItemCount} Artikel im Warenkorb</div>
+            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, color: '#ffffff' }}>{cartTotal}</div>
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); handleCheckout(); }}
             disabled={isCheckingOut}
-            style={{ background: '#C0392B', color: 'white', border: 'none', borderRadius: 14, padding: '12px 28px', fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, letterSpacing: 2, cursor: 'pointer' }}
+            style={{ background: '#C0392B', color: 'white', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 14, padding: '12px 28px', fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, letterSpacing: 2, cursor: 'pointer' }}
           >
             {isCheckingOut ? "WIRD VERARBEITET..." : "JETZT BEZAHLEN →"}
           </button>
@@ -278,7 +280,9 @@ export default function TerminalPage() {
       {toast && (
         <div style={{
           position: 'fixed', bottom: 90, left: '50%', transform: 'translateX(-50%)',
-          background: '#1A1A1A', color: 'white', padding: '10px 20px',
+          background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          color: 'white', padding: '10px 20px',
           borderRadius: 30, fontWeight: 700, fontSize: 14, zIndex: 300, whiteSpace: 'nowrap',
           pointerEvents: 'none',
         }}>
@@ -307,17 +311,17 @@ export default function TerminalPage() {
         />
       )}
       {/* FOOTER */}
-      <footer style={{ background: "#1a1a1a", color: "rgba(255,255,255,0.6)", padding: "20px", textAlign: "center", fontSize: 12 }}>
+      <footer style={{ background: 'rgba(0,0,0,0.6)', borderTop: '1px solid rgba(255,255,255,0.07)', color: "rgba(255,255,255,0.4)", padding: "20px", textAlign: "center", fontSize: 12 }}>
         <div style={{ maxWidth: 600, margin: "0 auto" }}>
-          <div style={{ fontWeight: 700, color: "white", marginBottom: 6, fontSize: 14 }}>🌯 Smile Döner Bochum</div>
+          <div style={{ fontWeight: 700, color: "rgba(255,255,255,0.8)", marginBottom: 6, fontSize: 14 }}>🌯 Smile Döner Bochum</div>
           <div style={{ marginBottom: 8 }}>Franziskusstr. 1, 44795 Bochum · pablodoner7@gmail.com</div>
           <div style={{ display: "flex", gap: 20, justifyContent: "center", marginBottom: 12 }}>
-            <a href="/impressum" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none" }}>Impressum</a>
-            <a href="/datenschutz" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none" }}>Datenschutz</a>
+            <a href="/impressum" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Impressum</a>
+            <a href="/datenschutz" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Datenschutz</a>
           </div>
           {/* Hidden Admin Button */}
           <div style={{ marginTop: 8 }}>
-            <a href="/admin" style={{ color: "rgba(255,255,255,0.1)", fontSize: 10, textDecoration: "none" }}>●</a>
+            <a href="/admin" style={{ color: "rgba(255,255,255,0.05)", fontSize: 10, textDecoration: "none" }}>●</a>
           </div>
         </div>
       </footer>
@@ -330,31 +334,35 @@ function ProductCard({ product, index, onSelect }: { product: Product; index: nu
     <div
       onClick={onSelect}
       style={{
-        background: 'white', borderRadius: 16, overflow: 'hidden',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.07)', cursor: 'pointer',
+        background: 'rgba(255,255,255,0.05)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: 16, overflow: 'hidden',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.3)', cursor: 'pointer',
         transition: 'all 0.25s', position: 'relative',
       }}
-      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 8px 28px rgba(0,0,0,0.13)'; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = ''; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)'; }}
+      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 40px rgba(0,0,0,0.5)'; (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.2)'; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = ''; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)'; (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.1)'; }}
     >
-      <div style={{ height: 110, background: 'linear-gradient(135deg, #FDF3E3, #F5E6C8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 52 }}>
+      <div style={{ height: 110, background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 52, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         {product.image_url
           ? <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           : <span>{getProductEmoji(product.name)}</span>
         }
       </div>
       <div style={{ padding: '12px 14px 14px' }}>
-        <div style={{ fontWeight: 800, fontSize: 14, lineHeight: 1.3, marginBottom: 4 }}>{product.name}</div>
+        <div style={{ fontWeight: 800, fontSize: 14, lineHeight: 1.3, marginBottom: 4, color: '#ffffff' }}>{product.name}</div>
         {product.description && (
-          <div style={{ fontSize: 11, color: '#888', marginBottom: 8, lineHeight: 1.4 }}>{product.description}</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 8, lineHeight: 1.4 }}>{product.description}</div>
         )}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, color: '#C0392B' }}>
+          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, color: '#f5c518' }}>
             {formatPrice(product.price_cents)}
           </span>
           <button
             onClick={(e) => { e.stopPropagation(); onSelect(); }}
-            style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#C0392B', color: 'white', fontSize: 20, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
+            style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.15)', background: '#C0392B', color: 'white', fontSize: 20, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
           >
             +
           </button>
@@ -398,7 +406,7 @@ function HeroSlider() {
       ))}
 
       {/* Overlay */}
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 }} />
 
       {/* Text content */}
       <div style={{ position: 'relative', zIndex: 2 }}>
@@ -406,7 +414,7 @@ function HeroSlider() {
         <p style={{ fontSize: 15, opacity: 0.85, marginTop: 6, fontWeight: 600 }}>🔥 Täglich frisch vom Spieß — Bochum's bester Döner</p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 16, flexWrap: 'wrap' }}>
           {['✓ Frisch vom Spieß', '✓ Vegetarisch verfügbar', '✓ Lieferung & Abholung'].map(badge => (
-            <span key={badge} style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700 }}>
+            <span key={badge} style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 20, padding: '6px 14px', fontSize: 13, fontWeight: 700 }}>
               {badge}
             </span>
           ))}
