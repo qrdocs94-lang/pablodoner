@@ -62,6 +62,7 @@ export default function TerminalPage() {
   const [activeSection, setActiveSection] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [isCashingOut, setIsCashingOut] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -70,7 +71,7 @@ export default function TerminalPage() {
 
   useEffect(() => setMounted(true), []);
 
-  const { totalItems, totalFormatted, toCheckoutPayload, orderType, addItem, setOrderType } = useCartStore();
+  const { totalItems, totalFormatted, toCheckoutPayload, toCashCheckoutPayload, orderType, addItem, setOrderType, clearCart } = useCartStore();
 
   useEffect(() => {
     Promise.all([fetchCategories(), fetchProducts()]).then(([cats, prods]) => {
@@ -105,6 +106,28 @@ export default function TerminalPage() {
       showToast(`✓ ${product.name} hinzugefügt`);
     }
   }, [addItem, showToast]);
+
+  const handleCashCheckout = useCallback(async () => {
+    if (isCashingOut) return;
+    setIsCashingOut(true);
+    setError(null);
+    try {
+      const payload = toCashCheckoutPayload();
+      const res = await fetch("/api/cash-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Fehler beim Erstellen der Bestellung");
+      clearCart();
+      window.location.href = `/order/${data.order_id}`;
+    } catch (e: any) {
+      setError(e.message ?? "Fehler beim Erstellen der Bestellung");
+    } finally {
+      setIsCashingOut(false);
+    }
+  }, [isCashingOut, toCashCheckoutPayload, clearCart]);
 
   const handleCheckout = useCallback(async () => {
     if (isCheckingOut) return;
@@ -308,6 +331,8 @@ export default function TerminalPage() {
           onClose={() => setCartOpen(false)}
           onCheckout={handleCheckout}
           isCheckingOut={isCheckingOut}
+          onCashCheckout={handleCashCheckout}
+          isCashingOut={isCashingOut}
         />
       )}
       {/* FOOTER */}

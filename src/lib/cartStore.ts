@@ -33,6 +33,13 @@ interface CartState {
     customer_phone?: string;
     delivery_address?: { street: string; city: string; zip: string };
   };
+  toCashCheckoutPayload: () => {
+    items: { product_id: string; name: string; price_cents: number; quantity: number; options: Record<string, string | string[]> }[];
+    order_type: OrderType;
+    customer_name?: string;
+    customer_phone?: string;
+    delivery_address?: { street: string; city: string; zip: string };
+  };
 }
 
 const DELIVERY_FEE = 199;
@@ -93,6 +100,26 @@ export const useCartStore = create<CartState>()(
         return {
           items: state.items.map((i) => ({
             product_id: i.product.id,
+            quantity: i.quantity,
+            options: i.options,
+          })),
+          order_type: state.orderType,
+          customer_name: state.customerName || undefined,
+          customer_phone: state.customerPhone || undefined,
+          delivery_address:
+            state.orderType === "delivery" && state.deliveryAddress.street
+              ? state.deliveryAddress
+              : undefined,
+        };
+      },
+
+      toCashCheckoutPayload: () => {
+        const state = get();
+        return {
+          items: state.items.map((i) => ({
+            product_id: i.product.id,
+            name: i.product.name,
+            price_cents: i.product.price_cents,
             quantity: i.quantity,
             options: i.options,
           })),

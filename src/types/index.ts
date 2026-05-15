@@ -29,7 +29,7 @@ export interface Product {
   options_schema: OptionSchema[];
 }
 
-export type OrderStatus = "pending" | "paid" | "preparing" | "ready" | "cancelled";
+export type OrderStatus = "pending" | "paid" | "cash" | "preparing" | "ready" | "cancelled";
 export type OrderType   = "pickup" | "delivery";
 
 export interface OrderItem {

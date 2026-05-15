@@ -10,9 +10,11 @@ interface Props {
   onClose: () => void;
   onCheckout: () => void;
   isCheckingOut: boolean;
+  onCashCheckout: () => void;
+  isCashingOut: boolean;
 }
 
-export default function CartPanel({ open, onClose, onCheckout, isCheckingOut }: Props) {
+export default function CartPanel({ open, onClose, onCheckout, isCheckingOut, onCashCheckout, isCashingOut }: Props) {
   const {
     items, orderType, updateQuantity, subtotalCents, deliveryFeeCents, totalCents,
     deliveryAddress, setDeliveryAddress, customerName, customerPhone, setCustomerInfo
@@ -133,13 +135,22 @@ export default function CartPanel({ open, onClose, onCheckout, isCheckingOut }: 
                 <span className="text-[#C0392B]">{formatPrice(totalCents())}</span>
               </div>
             </div>
-            <button
-              onClick={onCheckout}
-              disabled={isCheckingOut || !addressComplete}
-              className="w-full bg-[#C0392B] hover:bg-[#A01F1F] disabled:bg-gray-400 text-white font-black text-lg py-4 rounded-2xl transition-all active:scale-[0.98] shadow-lg"
-            >
-              {isCheckingOut ? "⏳ Weiterleitung zu Stripe..." : "JETZT BESTELLEN →"}
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={onCashCheckout}
+                disabled={isCashingOut || isCheckingOut || !addressComplete}
+                className="flex-1 bg-[#1a1a1a] hover:bg-[#333] disabled:bg-gray-400 text-white font-black text-base py-4 rounded-2xl transition-all active:scale-[0.98]"
+              >
+                {isCashingOut ? "⏳ Wird gespeichert..." : "💵 Bar bezahlen"}
+              </button>
+              <button
+                onClick={onCheckout}
+                disabled={isCheckingOut || isCashingOut || !addressComplete}
+                className="flex-1 bg-[#C0392B] hover:bg-[#A01F1F] disabled:bg-gray-400 text-white font-black text-base py-4 rounded-2xl transition-all active:scale-[0.98] shadow-lg"
+              >
+                {isCheckingOut ? "⏳ Stripe..." : "💳 Online bezahlen"}
+              </button>
+            </div>
           </div>
         )}
       </div>

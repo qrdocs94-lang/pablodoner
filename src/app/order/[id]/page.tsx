@@ -52,10 +52,12 @@ export default function OrderStatusPage() {
   }, [id]);
  
   const statusInfo = {
-    pending:    { label: "Bestellung eingegangen",  emoji: "📋", color: "text-yellow-600", bg: "bg-yellow-50" },
-    preparing:  { label: "Wird zubereitet",          emoji: "👨‍🍳", color: "text-orange-600", bg: "bg-orange-50" },
-    ready:      { label: "Bereit zur Abholung!",     emoji: "✅", color: "text-green-600",  bg: "bg-green-50"  },
-    delivered:  { label: "Geliefert",                emoji: "🎉", color: "text-blue-600",   bg: "bg-blue-50"   },
+    pending:    { label: "Bestellung eingegangen",              emoji: "📋", color: "text-yellow-600", bg: "bg-yellow-50" },
+    cash:       { label: "Bestellung eingegangen – Barzahlung", emoji: "💵", color: "text-green-700",  bg: "bg-green-50"  },
+    paid:       { label: "Bezahlt – Bestellung eingegangen",    emoji: "💳", color: "text-blue-600",   bg: "bg-blue-50"   },
+    preparing:  { label: "Wird zubereitet",                     emoji: "👨‍🍳", color: "text-orange-600", bg: "bg-orange-50" },
+    ready:      { label: "Bereit zur Abholung!",                emoji: "✅", color: "text-green-600",  bg: "bg-green-50"  },
+    delivered:  { label: "Geliefert",                           emoji: "🎉", color: "text-blue-600",   bg: "bg-blue-50"   },
   };
  
   const current = statusInfo[(order?.status as keyof typeof statusInfo)] ?? statusInfo.pending;
@@ -116,6 +118,19 @@ export default function OrderStatusPage() {
           })}
         </div>
  
+        {/* Cash payment notice */}
+        {order.status === "cash" && (
+          <div className="mx-6 mt-4 bg-green-50 border border-green-200 rounded-2xl p-4 text-center">
+            <div className="text-2xl mb-1">💵</div>
+            <p className="font-black text-green-800">Barzahlung</p>
+            <p className="text-sm text-green-700 mt-1">
+              {order.order_type === "delivery"
+                ? "Bitte halte den Betrag für den Fahrer bereit."
+                : "Bitte zahle beim Abholen an der Kasse."}
+            </p>
+          </div>
+        )}
+
         {/* Order Items */}
         {order.items && order.items.length > 0 && (
           <div className="px-6 pb-4 border-t border-gray-100">
