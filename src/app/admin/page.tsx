@@ -196,8 +196,8 @@ function fmt(cents: number) {
 
 function statusLabel(s: OrderStatus | string) {
   const map: Record<string, string> = {
-    pending: 'Ausstehend', paid: 'Bezahlt', preparing: 'In Zubereitung',
-    ready: 'Fertig', cancelled: 'Storniert',
+    pending: 'Ausstehend', paid: 'Bezahlt', cash: 'Barzahlung',
+    preparing: 'In Zubereitung', ready: 'Fertig', cancelled: 'Storniert',
   };
   return map[s] ?? s;
 }
@@ -206,6 +206,7 @@ function statusColor(s: OrderStatus | string) {
   const map: Record<string, { bg: string; color: string }> = {
     pending:    { bg: '#FEF3C7', color: '#92400E' },
     paid:       { bg: '#DBEAFE', color: '#1E40AF' },
+    cash:       { bg: '#DCFCE7', color: '#14532D' },
     preparing:  { bg: '#E0F2FE', color: '#0C4A6E' },
     ready:      { bg: '#DCFCE7', color: '#14532D' },
     cancelled:  { bg: '#FEE2E2', color: '#7F1D1D' },
@@ -279,7 +280,7 @@ function DashboardTab({ orders, onNavigate, onUpdateStatus }: {
   const todayStr = new Date().toLocaleDateString('de-DE');
   const todayOrders = orders.filter(o => new Date(o.created_at).toLocaleDateString('de-DE') === todayStr);
   const revenue = todayOrders.reduce((s, o) => s + o.total_cents, 0);
-  const pending = orders.filter(o => o.status === 'paid' || o.status === 'pending').length;
+  const pending = orders.filter(o => o.status === 'paid' || o.status === 'cash').length;
   const preparing = orders.filter(o => o.status === 'preparing').length;
 
   const stats = [
@@ -537,7 +538,7 @@ function KuecheTab({ orders, onUpdateStatus }: {
   orders: Order[];
   onUpdateStatus: (id: string, status: "preparing" | "ready" | "cancelled") => void;
 }) {
-  const paid      = orders.filter(o => o.status === 'paid' || o.status === 'pending');
+  const paid      = orders.filter(o => o.status === 'paid' || o.status === 'cash');
   const preparing = orders.filter(o => o.status === 'preparing');
   const ready     = orders.filter(o => o.status === 'ready');
 
@@ -613,7 +614,12 @@ function KanbanColumn({ title, titleBg, titleColor, orders, actionLabel, actionB
               style={{ border: isLate ? '1.5px solid #F87171' : '1px solid #F0F0F0', borderRadius: 10, padding: '12px 14px', marginBottom: 10 }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontWeight: 700, fontSize: 15 }}>{order.order_number}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontWeight: 700, fontSize: 15 }}>{order.order_number}</span>
+                  {order.status === 'cash' && (
+                    <span style={{ background: '#16A34A', color: 'white', fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 6, letterSpacing: 0.5 }}>BAR</span>
+                  )}
+                </div>
                 <span style={{ fontSize: 11, color: '#888' }}>{new Date(order.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</span>
               </div>
               <div style={{ marginBottom: 8 }}>
@@ -670,8 +676,8 @@ function BestellungenTab({ orders, onUpdateStatus }: {
   const [filter, setFilter] = useState<string>('all');
 
   const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter);
-  const statuses = ['all', 'pending', 'paid', 'preparing', 'ready', 'cancelled'];
-  const sLabels: Record<string, string> = { all: 'Alle', pending: 'Ausstehend', paid: 'Bezahlt', preparing: 'In Zubereitung', ready: 'Fertig', cancelled: 'Storniert' };
+  const statuses = ['all', 'paid', 'cash', 'preparing', 'ready', 'cancelled'];
+  const sLabels: Record<string, string> = { all: 'Alle', paid: 'Bezahlt', cash: 'Barzahlung', preparing: 'In Zubereitung', ready: 'Fertig', cancelled: 'Storniert' };
 
   return (
     <div>
@@ -756,14 +762,17 @@ function OrderTable({ orders, onUpdateStatus, compact }: {
               <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{order.order_type === 'delivery' ? '🛵 Lieferung' : '🏃 Abholung'}</div>
             </div>
             {/* Status */}
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: sc.bg, color: sc.color }}>
                 {statusLabel(order.status)}
               </span>
+              {order.status === 'cash' && (
+                <span style={{ background: '#16A34A', color: 'white', fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 6 }}>BAR</span>
+              )}
             </div>
             {/* Actions */}
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {(order.status === 'pending' || order.status === 'paid') && (
+              {(order.status === 'paid' || order.status === 'cash') && (
                 <button onClick={() => onUpdateStatus(order.id, 'preparing')} style={{ padding: '5px 10px', borderRadius: 6, background: '#C0392B', color: 'white', border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
                   Annehmen
                 </button>
