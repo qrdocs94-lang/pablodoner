@@ -297,13 +297,22 @@ export default function TerminalPage() {
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>{cartItemCount} Artikel im Warenkorb</div>
             <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, color: '#ffffff' }}>{cartTotal}</div>
           </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); handleCheckout(); }}
-            disabled={isCheckingOut}
-            style={{ background: '#C0392B', color: 'white', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 14, padding: '12px 28px', fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, letterSpacing: 2, cursor: 'pointer' }}
-          >
-            {isCheckingOut ? "WIRD VERARBEITET..." : "JETZT BEZAHLEN →"}
-          </button>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button
+              onClick={(e) => { e.stopPropagation(); handleCashCheckout(); }}
+              disabled={isCashingOut || isCheckingOut}
+              style={{ background: '#1a1a1a', color: 'white', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 14, padding: '12px 20px', fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, letterSpacing: 1, cursor: 'pointer' }}
+            >
+              {isCashingOut ? "⏳..." : "💵 BAR"}
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); handleCheckout(); }}
+              disabled={isCheckingOut || isCashingOut}
+              style={{ background: '#C0392B', color: 'white', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 14, padding: '12px 28px', fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, letterSpacing: 2, cursor: 'pointer' }}
+            >
+              {isCheckingOut ? "WIRD VERARBEITET..." : "JETZT BEZAHLEN →"}
+            </button>
+          </div>
         </div>
       )}
 
