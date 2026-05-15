@@ -13,9 +13,30 @@ const categoryEmojis: Record<string, string> = {
   "Lahmacun": "🫓",
   "Falafel & Veggie": "🧆",
   "Snacks & Mehr": "🍟",
+  "Extras": "🫙",
   "Extras & Saucen": "🫙",
   "Getränke": "🥤",
 };
+
+const STATIC_EXTRAS_CATEGORY: Category = {
+  id: 'static-extras',
+  name: 'Extras',
+  slug: 'extras',
+  icon: '🫙',
+  sort_order: 45,
+  is_active: true,
+};
+
+const STATIC_EXTRAS_PRODUCTS: Product[] = [
+  { id: 'static-extras-ketchup',    category_id: 'static-extras', name: 'Ketchup',         description: '', price_cents: 50,  image_url: null, is_active: true, sort_order: 1, options_schema: [] },
+  { id: 'static-extras-mayo',       category_id: 'static-extras', name: 'Mayo',             description: '', price_cents: 50,  image_url: null, is_active: true, sort_order: 2, options_schema: [] },
+  { id: 'static-extras-curry',      category_id: 'static-extras', name: 'Currysauce',       description: '', price_cents: 50,  image_url: null, is_active: true, sort_order: 3, options_schema: [] },
+  { id: 'static-extras-knoblauch',  category_id: 'static-extras', name: 'Knoblauchsauce',   description: '', price_cents: 100, image_url: null, is_active: true, sort_order: 4, options_schema: [] },
+  { id: 'static-extras-kraeuter',   category_id: 'static-extras', name: 'Kräutersauce',     description: '', price_cents: 100, image_url: null, is_active: true, sort_order: 5, options_schema: [] },
+  { id: 'static-extras-scharf',     category_id: 'static-extras', name: 'Scharfe Sauce',    description: '', price_cents: 100, image_url: null, is_active: true, sort_order: 6, options_schema: [] },
+  { id: 'static-extras-juppi',      category_id: 'static-extras', name: 'Juppi Sauce',      description: '', price_cents: 100, image_url: null, is_active: true, sort_order: 7, options_schema: [] },
+  { id: 'static-extras-samurai',    category_id: 'static-extras', name: 'Samurai Sauce',    description: '', price_cents: 100, image_url: null, is_active: true, sort_order: 8, options_schema: [] },
+];
 
 function getProductEmoji(name: string): string {
   const n = name.toLowerCase();
@@ -53,8 +74,14 @@ export default function TerminalPage() {
 
   useEffect(() => {
     Promise.all([fetchCategories(), fetchProducts()]).then(([cats, prods]) => {
-      setCategories(cats);
-      setAllProducts(prods);
+      const insertAt = (() => {
+        const i = cats.findIndex(c => c.name === "Snacks & Mehr");
+        return i >= 0 ? i + 1 : cats.length;
+      })();
+      const catsWithExtras = [...cats];
+      catsWithExtras.splice(insertAt, 0, STATIC_EXTRAS_CATEGORY);
+      setCategories(catsWithExtras);
+      setAllProducts([...prods, ...STATIC_EXTRAS_PRODUCTS]);
     }).catch(() => setError("Menü konnte nicht geladen werden."));
   }, []);
 
