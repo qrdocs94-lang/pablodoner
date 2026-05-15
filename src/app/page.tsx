@@ -134,18 +134,30 @@ export default function TerminalPage() {
             </button>
           </div>
 
-          {/* Cart Button */}
-          <button
-            onClick={() => setCartOpen(true)}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#F39C12', border: 'none', borderRadius: 10, padding: '8px 16px', cursor: 'pointer', fontWeight: 900, fontSize: 15, color: '#1A1A1A', transition: 'all 0.2s', position: 'relative' }}
-          >
-            🛒 {cartTotal}
-            {cartItemCount > 0 && (
-              <span style={{ position: 'absolute', top: -6, right: -6, background: '#96281B', color: 'white', borderRadius: '50%', width: 20, height: 20, fontSize: 11, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}>
-                {cartItemCount}
-              </span>
-            )}
-          </button>
+          {/* Right side: Phone + Cart */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {/* Phone */}
+            <style>{`.phone-text { display: none; } @media (min-width: 640px) { .phone-text { display: inline; } }`}</style>
+            <a
+              href="tel:02345798533"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, padding: '8px 12px', color: 'white', textDecoration: 'none', fontWeight: 800, fontSize: 14, transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+            >
+              📞 <span className="phone-text">02345 798533</span>
+            </a>
+
+            {/* Cart Button */}
+            <button
+              onClick={() => setCartOpen(true)}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#F39C12', border: 'none', borderRadius: 10, padding: '8px 16px', cursor: 'pointer', fontWeight: 900, fontSize: 15, color: '#1A1A1A', transition: 'all 0.2s', position: 'relative' }}
+            >
+              🛒 {cartTotal}
+              {cartItemCount > 0 && (
+                <span style={{ position: 'absolute', top: -6, right: -6, background: '#96281B', color: 'white', borderRadius: '50%', width: 20, height: 20, fontSize: 11, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}>
+                  {cartItemCount}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Category Nav */}
