@@ -352,6 +352,7 @@ function MonthlyReportModal({ onClose }: { onClose: () => void }) {
     supabase
       .from('orders')
       .select('*')
+      .in('status', ['paid', 'cash', 'preparing', 'ready'])
       .gte('created_at', from)
       .lte('created_at', to)
       .order('created_at', { ascending: false })
@@ -676,8 +677,8 @@ function BestellungenTab({ orders, onUpdateStatus }: {
   const [filter, setFilter] = useState<string>('all');
 
   const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter);
-  const statuses = ['all', 'paid', 'cash', 'preparing', 'ready', 'cancelled'];
-  const sLabels: Record<string, string> = { all: 'Alle', paid: 'Bezahlt', cash: 'Barzahlung', preparing: 'In Zubereitung', ready: 'Fertig', cancelled: 'Storniert' };
+  const statuses = ['all', 'paid', 'cash', 'preparing', 'ready'];
+  const sLabels: Record<string, string> = { all: 'Alle', paid: 'Bezahlt', cash: 'Barzahlung', preparing: 'In Zubereitung', ready: 'Fertig' };
 
   return (
     <div>

@@ -1,7 +1,8 @@
 // supabase/functions/create-checkout/index.ts
 // ============================================================
 // Supabase Edge Function: Create Stripe Checkout Session
-// Validates prices from DB before creating session (security!)
+// Validates prices from DB, stores order data temporarily,
+// does NOT create a DB order until payment is confirmed.
 // ============================================================
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -113,26 +114,7 @@ serve(async (req: Request) => {
     const delivery_fee_cents = order_type === "delivery" ? DELIVERY_FEE_CENTS : 0;
     const total_cents = subtotal_cents + delivery_fee_cents;
 
-    // ── 4. Create order record in DB ──────────────────────────
-    const { data: order, error: orderErr } = await supabase
-      .from("orders")
-      .insert({
-        status: "pending",
-        order_type,
-        customer_name: customer_name ?? null,
-        customer_phone: customer_phone ?? null,
-        delivery_address: delivery_address ?? null,
-        items: validatedItems,
-        subtotal_cents,
-        delivery_fee_cents,
-        total_cents,
-      })
-      .select()
-      .single();
-
-    if (orderErr) throw orderErr;
-
-    // ── 5. Build Stripe line items ────────────────────────────
+    // ── 4. Build Stripe line items ────────────────────────────
     const stripeLineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = validatedItems.map(
       (item) => ({
         quantity: item.quantity,
@@ -159,40 +141,52 @@ serve(async (req: Request) => {
       });
     }
 
-    // ── 6. Create Stripe Checkout Session ────────────────────
+    // ── 5. Create Stripe Checkout Session ────────────────────
+    // Use {CHECKOUT_SESSION_ID} template — Stripe replaces it with the real session ID
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: stripeLineItems,
       currency: "eur",
-      success_url: `${APP_URL}/order/${order.id}?success=1`,
+      success_url: `${APP_URL}/order/session/{CHECKOUT_SESSION_ID}`,
       cancel_url: `${APP_URL}/?cancelled=1`,
       metadata: {
-        order_id: order.id,
-        order_number: order.order_number,
         order_type,
       },
       payment_intent_data: {
-        metadata: {
-          order_id: order.id,
-          order_number: order.order_number,
-        },
+        metadata: { order_type },
       },
       // Auto-expire after 30 minutes
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
     });
 
-    // ── 7. Store Stripe session ID in order ───────────────────
-    await supabase
-      .from("orders")
-      .update({ stripe_session_id: session.id })
-      .eq("id", order.id);
+    // ── 6. Save validated order data to checkout_sessions ─────
+    // Webhook will read this and create the real order on payment confirmation
+    const orderData = {
+      order_type,
+      customer_name: customer_name ?? null,
+      customer_phone: customer_phone ?? null,
+      delivery_address: delivery_address ?? null,
+      items: validatedItems,
+      subtotal_cents,
+      delivery_fee_cents,
+      total_cents,
+    };
 
-    // ── 8. Return checkout URL to frontend ────────────────────
+    const { error: sessionErr } = await supabase
+      .from("checkout_sessions")
+      .insert({ stripe_session_id: session.id, order_data: orderData });
+
+    if (sessionErr) {
+      console.error("[create-checkout] Failed to save checkout session:", sessionErr);
+      // Cancel the Stripe session to avoid orphaned payments
+      await stripe.checkout.sessions.expire(session.id);
+      return error(500, "Failed to save checkout session");
+    }
+
+    // ── 7. Return checkout URL to frontend ────────────────────
     return new Response(
       JSON.stringify({
         checkout_url: session.url,
-        order_id: order.id,
-        order_number: order.order_number,
         total_cents,
       }),
       {
@@ -212,4 +206,3 @@ function error(status: number, message: string) {
     status,
   });
 }
-

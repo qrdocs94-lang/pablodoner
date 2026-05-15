@@ -1,8 +1,8 @@
 // supabase/functions/stripe-webhook/index.ts
 // ============================================================
 // Stripe Webhook Handler
-// Listens for checkout.session.completed → sets order to 'paid'
-// Also handles payment_intent.payment_failed
+// checkout.session.completed → reads checkout_sessions table
+// → creates order with 'paid' status (no pending order exists)
 // ============================================================
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -48,104 +48,125 @@ serve(async (req: Request) => {
         const session = event.data.object as Stripe.Checkout.Session;
 
         if (session.payment_status !== "paid") {
-          // Session completed but not yet paid (e.g. bank transfer)
-          console.log(`[webhook] Session ${session.id} not yet paid, skipping`);
+          console.log(`[webhook] Session ${session.id} not yet paid (e.g. bank transfer), skipping`);
           break;
         }
 
-        const order_id = session.metadata?.order_id;
-        if (!order_id) {
-          console.error("[webhook] No order_id in session metadata");
+        // Look up the saved checkout data
+        const { data: checkoutSession, error: lookupErr } = await supabase
+          .from("checkout_sessions")
+          .select("order_data")
+          .eq("stripe_session_id", session.id)
+          .maybeSingle();
+
+        if (lookupErr) {
+          console.error("[webhook] Failed to look up checkout_session:", lookupErr);
+          throw lookupErr;
+        }
+
+        if (!checkoutSession) {
+          console.warn(`[webhook] No checkout_session found for ${session.id} — already processed?`);
           break;
         }
 
-        // Update order: pending → paid
-        const { data: updated, error: updateErr } = await supabase
+        const od = checkoutSession.order_data;
+
+        // Create the order now that payment is confirmed
+        const { data: order, error: insertErr } = await supabase
           .from("orders")
-          .update({
+          .insert({
             status: "paid",
+            order_type: od.order_type,
+            customer_name: od.customer_name,
+            customer_phone: od.customer_phone,
+            delivery_address: od.delivery_address,
+            items: od.items,
+            subtotal_cents: od.subtotal_cents,
+            delivery_fee_cents: od.delivery_fee_cents,
+            total_cents: od.total_cents,
+            stripe_session_id: session.id,
             stripe_payment_id: session.payment_intent as string,
             paid_at: new Date().toISOString(),
           })
-          .eq("id", order_id)
-          .eq("status", "pending")   // idempotency guard
-          .select("id, order_number, order_type, items, total_cents")
+          .select("id, order_number")
           .single();
 
-        if (updateErr) {
-          console.error("[webhook] DB update failed:", updateErr);
-          throw updateErr;
+        if (insertErr) {
+          console.error("[webhook] Failed to create order:", insertErr);
+          throw insertErr;
         }
 
-        if (!updated) {
-          console.warn(`[webhook] Order ${order_id} not updated (already processed?)`);
-          break;
-        }
+        // Clean up the temp checkout session
+        await supabase
+          .from("checkout_sessions")
+          .delete()
+          .eq("stripe_session_id", session.id);
 
         console.log(
-          `[webhook] ✅ Order ${updated.order_number} marked as PAID | Total: ${updated.total_cents / 100} €`
+          `[webhook] ✅ Order ${order.order_number} created as PAID | Total: ${od.total_cents / 100} €`
         );
-
-        // ── Optional: Send notification to kitchen ──────────
-        // You could trigger a Supabase Realtime broadcast here,
-        // or call a push notification service, etc.
-        // await notifyKitchen(updated);
-
         break;
       }
 
       // ── Async payment success (e.g. SEPA) ─────────────────
       case "checkout.session.async_payment_succeeded": {
         const session = event.data.object as Stripe.Checkout.Session;
-        const order_id = session.metadata?.order_id;
-        if (!order_id) break;
+
+        const { data: checkoutSession } = await supabase
+          .from("checkout_sessions")
+          .select("order_data")
+          .eq("stripe_session_id", session.id)
+          .maybeSingle();
+
+        if (!checkoutSession) {
+          console.warn(`[webhook] No checkout_session found for async payment ${session.id}`);
+          break;
+        }
+
+        const od = checkoutSession.order_data;
+
+        await supabase.from("orders").insert({
+          status: "paid",
+          order_type: od.order_type,
+          customer_name: od.customer_name,
+          customer_phone: od.customer_phone,
+          delivery_address: od.delivery_address,
+          items: od.items,
+          subtotal_cents: od.subtotal_cents,
+          delivery_fee_cents: od.delivery_fee_cents,
+          total_cents: od.total_cents,
+          stripe_session_id: session.id,
+          stripe_payment_id: session.payment_intent as string,
+          paid_at: new Date().toISOString(),
+        });
 
         await supabase
-          .from("orders")
-          .update({
-            status: "paid",
-            stripe_payment_id: session.payment_intent as string,
-            paid_at: new Date().toISOString(),
-          })
-          .eq("id", order_id)
-          .eq("status", "pending");
+          .from("checkout_sessions")
+          .delete()
+          .eq("stripe_session_id", session.id);
 
-        console.log(`[webhook] ✅ Async payment succeeded for order ${order_id}`);
+        console.log(`[webhook] ✅ Async payment succeeded for session ${session.id}`);
         break;
       }
 
-      // ── Payment FAILED ─────────────────────────────────────
+      // ── Payment FAILED / Session EXPIRED ──────────────────
+      // Just clean up the temp checkout session — no DB order to cancel
       case "checkout.session.async_payment_failed":
-      case "payment_intent.payment_failed": {
-        const obj = event.data.object as Stripe.Checkout.Session | Stripe.PaymentIntent;
-        const order_id = (obj as Stripe.Checkout.Session).metadata?.order_id
-          ?? (obj as Stripe.PaymentIntent).metadata?.order_id;
-
-        if (!order_id) break;
-
-        await supabase
-          .from("orders")
-          .update({ status: "cancelled" })
-          .eq("id", order_id)
-          .eq("status", "pending");
-
-        console.log(`[webhook] ❌ Payment failed for order ${order_id}`);
-        break;
-      }
-
-      // ── Session EXPIRED ────────────────────────────────────
       case "checkout.session.expired": {
         const session = event.data.object as Stripe.Checkout.Session;
-        const order_id = session.metadata?.order_id;
-        if (!order_id) break;
 
         await supabase
-          .from("orders")
-          .update({ status: "cancelled" })
-          .eq("id", order_id)
-          .eq("status", "pending");
+          .from("checkout_sessions")
+          .delete()
+          .eq("stripe_session_id", session.id);
 
-        console.log(`[webhook] ⏰ Session expired for order ${order_id}`);
+        console.log(`[webhook] 🗑️ Cleaned up checkout_session for ${session.id} (${event.type})`);
+        break;
+      }
+
+      case "payment_intent.payment_failed": {
+        // No order was created, nothing to clean up
+        console.log(`[webhook] ❌ payment_intent.payment_failed — no action needed`);
         break;
       }
 

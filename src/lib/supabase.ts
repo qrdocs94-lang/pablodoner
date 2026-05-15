@@ -60,7 +60,7 @@ export async function createCheckoutSession(payload: {
   customer_name?: string;
   customer_phone?: string;
   delivery_address?: { street: string; city: string; zip: string };
-}): Promise<{ checkout_url: string; order_id: string; order_number: string }> {
+}): Promise<{ checkout_url: string; total_cents: number }> {
   const { data, error } = await supabase.functions.invoke("create-checkout", {
     body: payload,
   });
@@ -99,7 +99,7 @@ export async function fetchAllOrdersAdmin(): Promise<Order[]> {
   const { data, error } = await supabase
     .from("orders")
     .select("*")
-    .neq("status", "pending")
+    .in("status", ["paid", "cash", "preparing", "ready"])
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
