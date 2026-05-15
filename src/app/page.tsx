@@ -75,14 +75,22 @@ export default function TerminalPage() {
 
   useEffect(() => {
     Promise.all([fetchCategories(), fetchProducts()]).then(([cats, prods]) => {
-      const insertAt = (() => {
-        const i = cats.findIndex(c => c.name === "Snacks & Mehr");
-        return i >= 0 ? i + 1 : cats.length;
-      })();
-      const catsWithExtras = [...cats];
-      catsWithExtras.splice(insertAt, 0, STATIC_EXTRAS_CATEGORY);
-      setCategories(catsWithExtras);
-      setAllProducts([...prods, ...STATIC_EXTRAS_PRODUCTS]);
+      const hasExtrasInDb = cats.some(c => c.name === "Extras" || c.slug === "extras");
+      if (hasExtrasInDb) {
+        // DB has real Extras category — use it directly
+        setCategories(cats);
+        setAllProducts(prods);
+      } else {
+        // Fallback: inject static extras between Snacks & Mehr and Getränke
+        const insertAt = (() => {
+          const i = cats.findIndex(c => c.name === "Snacks & Mehr");
+          return i >= 0 ? i + 1 : cats.length;
+        })();
+        const catsWithExtras = [...cats];
+        catsWithExtras.splice(insertAt, 0, STATIC_EXTRAS_CATEGORY);
+        setCategories(catsWithExtras);
+        setAllProducts([...prods, ...STATIC_EXTRAS_PRODUCTS]);
+      }
     }).catch(() => setError("Menü konnte nicht geladen werden."));
   }, []);
 

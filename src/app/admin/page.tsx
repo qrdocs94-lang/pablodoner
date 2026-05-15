@@ -809,6 +809,24 @@ function ProdukteTab({ products, categories, onRefresh }: {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [seeding, setSeeding] = useState(false);
+  const [seedMsg, setSeedMsg] = useState('');
+
+  const handleSeedExtras = async () => {
+    setSeeding(true);
+    setSeedMsg('');
+    try {
+      const res = await fetch('/api/admin/seed-extras', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Fehler');
+      setSeedMsg(`✅ ${data.message} (${data.inserted} neu, ${data.skipped} bereits vorhanden)`);
+      onRefresh();
+    } catch (e: any) {
+      setSeedMsg(`❌ ${e.message}`);
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   const catMap = Object.fromEntries(categories.map(c => [c.id, c.name]));
 
@@ -902,9 +920,25 @@ function ProdukteTab({ products, categories, onRefresh }: {
       <PageHeader
         title="Produkte verwalten"
         sub={`${products.length} Produkte im System`}
-        action={<button onClick={() => setShowAddForm(!showAddForm)} style={{ padding: '8px 16px', background: '#C0392B', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>+ Produkt hinzufügen</button>}
+        action={
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button
+              onClick={handleSeedExtras}
+              disabled={seeding}
+              style={{ padding: '8px 14px', background: '#16A34A', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: seeding ? 0.7 : 1 }}
+            >
+              {seeding ? '⏳...' : '🫙 Extras initialisieren'}
+            </button>
+            <button onClick={() => setShowAddForm(!showAddForm)} style={{ padding: '8px 16px', background: '#C0392B', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>+ Produkt hinzufügen</button>
+          </div>
+        }
       />
       <div style={{ padding: '20px 24px' }}>
+        {seedMsg && (
+          <div style={{ marginBottom: 14, padding: '10px 14px', background: seedMsg.startsWith('✅') ? '#dcfce7' : '#fee2e2', color: seedMsg.startsWith('✅') ? '#14532d' : '#991b1b', borderRadius: 8, fontSize: 13, fontWeight: 600 }}>
+            {seedMsg}
+          </div>
+        )}
         {/* Add form */}
         {showAddForm && (
           <div style={{ background: 'white', borderRadius: 12, padding: 20, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
