@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Hauptseiten -->
   <url>
     <loc>https://www.smiledönerbochum.de/</loc>
     <priority>1.0</priority>
@@ -15,4 +17,144 @@
     <priority>0.3</priority>
     <changefreq>monthly</changefreq>
   </url>
+
+  <!-- Keyword-Seiten -->
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-lieferung-bochum</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/essen-bestellen-bochum</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-online-bestellen-bochum</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/lieferservice-bochum</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/tuerkisch-essen-bochum</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/duerüm-bochum</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/lahmacun-bochum</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/falafel-bochum</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/pizza-alternative-bochum</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/vegetarisch-bochum</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/haehnchen-doener-bochum</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-mitternacht-bochum</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <!-- Stadtteile -->
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-mitte</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-wattenscheid</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-langendreer</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-gerthe</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-hamme</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-harpen</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-hofstede</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-riemke</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-weitmar</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-querenburg</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-wiemelhausen</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-steinkuhl</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-dahlhausen</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-eppendorf</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/doener-bochum-hordel</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
 </urlset>
