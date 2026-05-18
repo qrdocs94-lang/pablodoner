@@ -94,6 +94,17 @@ export async function updateOrderStatus(
   if (error) throw error;
 }
 
+// ── Restaurant Status ─────────────────────────────────────────
+export async function fetchRestaurantStatus(): Promise<{ is_open: boolean; message: string; updated_at: string } | null> {
+  const { data } = await supabase.from("restaurant_status").select("*").eq("id", 1).maybeSingle();
+  return data ?? null;
+}
+
+export async function updateRestaurantStatus(is_open: boolean, message: string): Promise<void> {
+  const { error } = await supabase.from("restaurant_status").upsert({ id: 1, is_open, message, updated_at: new Date().toISOString() });
+  if (error) throw error;
+}
+
 // ── Admin: fetch all orders ────────────────────────────────────
 export async function fetchAllOrdersAdmin(): Promise<Order[]> {
   const { data, error } = await supabase

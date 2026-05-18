@@ -2,7 +2,8 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { fetchCategories, fetchProducts, createCheckoutSession } from "@/lib/supabase";
+import { fetchCategories, fetchProducts, createCheckoutSession, fetchRestaurantStatus } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { useCartStore } from "@/lib/cartStore";
 import { Category, Product, formatPrice } from "@/types";
 import OptionsModal from "@/components/terminal/OptionsModal";
@@ -68,8 +69,29 @@ export default function TerminalPage() {
   const [mounted, setMounted] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [restaurantOpen, setRestaurantOpen] = useState<boolean | null>(null);
+  const [restaurantMessage, setRestaurantMessage] = useState('');
 
   useEffect(() => setMounted(true), []);
+
+  // Fetch restaurant open/closed status + subscribe to realtime changes
+  useEffect(() => {
+    fetchRestaurantStatus().then(s => {
+      if (s) { setRestaurantOpen(s.is_open); setRestaurantMessage(s.message ?? ''); }
+      else setRestaurantOpen(true); // default open if no row
+    });
+
+    const channel = supabase
+      .channel('restaurant-status')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurant_status' }, (payload) => {
+        const row = payload.new as { is_open: boolean; message: string };
+        setRestaurantOpen(row.is_open);
+        setRestaurantMessage(row.message ?? '');
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const { totalItems, totalFormatted, toCheckoutPayload, toCashCheckoutPayload, orderType, addItem, setOrderType, clearCart } = useCartStore();
 
@@ -169,6 +191,19 @@ export default function TerminalPage() {
         📍 Franziskusstr. 1, 44795 Bochum &nbsp;|&nbsp;
         <span style={{ color: '#F39C12' }}>Di–Do 10–22 Uhr &bull; Fr–So 12–00 Uhr</span>
       </div>
+
+      {/* OPEN / CLOSED BANNER */}
+      {restaurantOpen === false && (
+        <div style={{ background: '#7f1d1d', borderBottom: '1px solid rgba(220,38,38,0.5)', padding: '12px 20px', textAlign: 'center' }}>
+          <div style={{ fontSize: 16, fontWeight: 800, color: '#fca5a5' }}>🔴 Aktuell geschlossen – Wir nehmen gerade keine Bestellungen an</div>
+          {restaurantMessage && <div style={{ fontSize: 13, color: 'rgba(252,165,165,0.85)', marginTop: 4 }}>{restaurantMessage}</div>}
+        </div>
+      )}
+      {restaurantOpen === true && (
+        <div style={{ background: 'rgba(22,163,74,0.15)', borderBottom: '1px solid rgba(22,163,74,0.25)', padding: '8px 20px', textAlign: 'center' }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#4ade80' }}>🟢 Jetzt geöffnet – Bestellung möglich</span>
+        </div>
+      )}
 
       {/* HEADER */}
       <header style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 4px 30px rgba(0,0,0,0.5)' }}>
@@ -298,20 +333,28 @@ export default function TerminalPage() {
             <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, color: '#ffffff' }}>{cartTotal}</div>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <button
-              onClick={(e) => { e.stopPropagation(); handleCashCheckout(); }}
-              disabled={isCashingOut || isCheckingOut}
-              style={{ background: '#1a1a1a', color: 'white', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 14, padding: '12px 20px', fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, letterSpacing: 1, cursor: 'pointer' }}
-            >
-              {isCashingOut ? "⏳..." : "💵 BAR"}
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); handleCheckout(); }}
-              disabled={isCheckingOut || isCashingOut}
-              style={{ background: '#C0392B', color: 'white', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 14, padding: '12px 28px', fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, letterSpacing: 2, cursor: 'pointer' }}
-            >
-              {isCheckingOut ? "WIRD VERARBEITET..." : "JETZT BEZAHLEN →"}
-            </button>
+            {restaurantOpen === false ? (
+              <div style={{ background: '#374151', color: 'rgba(255,255,255,0.5)', borderRadius: 14, padding: '12px 28px', fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, letterSpacing: 1 }}>
+                🔴 GESCHLOSSEN
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleCashCheckout(); }}
+                  disabled={isCashingOut || isCheckingOut}
+                  style={{ background: '#1a1a1a', color: 'white', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 14, padding: '12px 20px', fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, letterSpacing: 1, cursor: 'pointer' }}
+                >
+                  {isCashingOut ? "⏳..." : "💵 BAR"}
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleCheckout(); }}
+                  disabled={isCheckingOut || isCashingOut}
+                  style={{ background: '#C0392B', color: 'white', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 14, padding: '12px 28px', fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, letterSpacing: 2, cursor: 'pointer' }}
+                >
+                  {isCheckingOut ? "WIRD VERARBEITET..." : "JETZT BEZAHLEN →"}
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

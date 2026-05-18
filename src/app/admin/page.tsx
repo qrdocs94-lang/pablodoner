@@ -12,13 +12,15 @@ import {
   updateProduct,
   deleteProduct,
   uploadProductImage,
+  fetchRestaurantStatus,
+  updateRestaurantStatus,
 } from "@/lib/supabase";
 import { Order, Product, Category, OrderStatus, formatPrice } from "@/types";
 
 // ── Constants ────────────────────────────────────────────────
 const ADMIN_PASSWORD = "pablo2024";
 
-type AdminPage = "dashboard" | "kueche" | "bestellungen" | "produkte";
+type AdminPage = "dashboard" | "kueche" | "bestellungen" | "produkte" | "status";
 
 // ── Root component ───────────────────────────────────────────
 export default function AdminRoot() {
@@ -120,6 +122,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
     { id: "kueche", icon: "👨‍🍳", label: "Küche Live" },
     { id: "bestellungen", icon: "📋", label: "Bestellungen" },
     { id: "produkte", icon: "🍽️", label: "Produkte" },
+    { id: "status", icon: "🟢", label: "Status" },
   ];
 
   return (
@@ -182,6 +185,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
                 onRefresh={loadData}
               />
             )}
+            {page === "status" && <StatusTab />}
           </>
         )}
       </div>
@@ -1105,6 +1109,119 @@ function ProdukteTab({ products, categories, onRefresh }: {
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+// ── Status Tab ───────────────────────────────────────────────
+function StatusTab() {
+  const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [message, setMessage] = useState('');
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [loadError, setLoadError] = useState('');
+
+  useEffect(() => {
+    fetchRestaurantStatus().then(s => {
+      if (s) { setIsOpen(s.is_open); setMessage(s.message ?? ''); setUpdatedAt(s.updated_at); }
+    }).catch(() => setLoadError('Status konnte nicht geladen werden.'));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaved(false);
+    try {
+      await updateRestaurantStatus(isOpen, message);
+      setUpdatedAt(new Date().toISOString());
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (e: any) {
+      setLoadError(e.message ?? 'Fehler beim Speichern');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div>
+      <PageHeader title="Restaurant Status" sub="Öffnungszeiten live steuern" />
+      <div style={{ padding: '24px', maxWidth: 520 }}>
+        <div style={{ background: 'white', borderRadius: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+          {/* Toggle */}
+          <div style={{ padding: '28px 28px 20px' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 16 }}>Aktueller Status</div>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                onClick={() => setIsOpen(true)}
+                style={{
+                  flex: 1, padding: '20px 16px', borderRadius: 14, cursor: 'pointer',
+                  border: isOpen ? '2.5px solid #16A34A' : '2px solid #e5e7eb',
+                  background: isOpen ? '#dcfce7' : '#f9fafb',
+                  color: isOpen ? '#14532d' : '#9ca3af',
+                  fontWeight: 800, fontSize: 17, transition: 'all 0.15s',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                }}
+              >
+                <span style={{ fontSize: 32 }}>🟢</span>
+                GEÖFFNET
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                style={{
+                  flex: 1, padding: '20px 16px', borderRadius: 14, cursor: 'pointer',
+                  border: !isOpen ? '2.5px solid #DC2626' : '2px solid #e5e7eb',
+                  background: !isOpen ? '#fee2e2' : '#f9fafb',
+                  color: !isOpen ? '#7f1d1d' : '#9ca3af',
+                  fontWeight: 800, fontSize: 17, transition: 'all 0.15s',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                }}
+              >
+                <span style={{ fontSize: 32 }}>🔴</span>
+                GESCHLOSSEN
+              </button>
+            </div>
+          </div>
+
+          {/* Message */}
+          <div style={{ padding: '0 28px 24px' }}>
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '.5px' }}>
+              Nachricht für Kunden (optional)
+            </label>
+            <input
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              placeholder='z.B. "Heute wegen Feiertag geschlossen" oder "Öffnen wieder um 15:00"'
+              style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          {/* Footer */}
+          <div style={{ padding: '16px 28px 24px', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+            <div style={{ fontSize: 12, color: '#aaa' }}>
+              {updatedAt ? `Zuletzt geändert: ${new Date(updatedAt).toLocaleString('de-DE')}` : 'Noch nicht gesetzt'}
+            </div>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              style={{ padding: '10px 24px', background: '#C0392B', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', opacity: saving ? .6 : 1 }}
+            >
+              {saving ? '⏳ Speichern...' : '✓ Status speichern'}
+            </button>
+          </div>
+
+          {saved && (
+            <div style={{ margin: '0 28px 20px', padding: '10px 14px', background: '#dcfce7', color: '#14532d', borderRadius: 8, fontSize: 13, fontWeight: 600 }}>
+              ✅ Status erfolgreich gespeichert
+            </div>
+          )}
+          {loadError && (
+            <div style={{ margin: '0 28px 20px', padding: '10px 14px', background: '#fee2e2', color: '#991b1b', borderRadius: 8, fontSize: 13, fontWeight: 600 }}>
+              ❌ {loadError}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
