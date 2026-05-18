@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.xn--smilednerbochum-etb.de/</loc>
-    <changefreq>daily</changefreq>
+    <loc>https://www.smiledönerbochum.de/</loc>
     <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://www.xn--smilednerbochum-etb.de/menu</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.xn--smilednerbochum-etb.de/cart</loc>
+    <loc>https://www.smiledönerbochum.de/impressum</loc>
+    <priority>0.3</priority>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.smiledönerbochum.de/datenschutz</loc>
+    <priority>0.3</priority>
+    <changefreq>monthly</changefreq>
   </url>
 </urlset>
